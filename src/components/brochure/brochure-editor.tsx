@@ -7,19 +7,21 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Wand2, UploadCloud, Trash2, Image as ImageIcon } from 'lucide-react'; // Added ImageIcon
+import { Wand2 } from 'lucide-react';
 import React, { useCallback, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { suggestBrochureText, type SuggestBrochureTextInput } from '@/ai/flows/suggest-brochure-text';
+import { ImageDropzone } from '@/components/ui/image-dropzone'; // Import the new component
+import { cn } from '@/lib/utils';
 
 interface BrochureEditorProps {
   content: BrochureContent;
   onContentChange: <K1 extends keyof BrochureContent, K2 extends keyof BrochureContent[K1]>(
     pageKey: K1,
     fieldKey: K2,
-    value: BrochureContent[K1][K2]
+    value: BrochureContent[K1][K2] | null // Allow null for clearing images
   ) => void;
-  onAmenityItemChange: (amenityId: string, field: keyof AmenityItem, value: string) => void; // Changed from onAmenityTextChange
+  onAmenityItemChange: (amenityId: string, field: keyof AmenityItem, value: string | null) => void;
   onListItemChange: <K1 extends keyof BrochureContent, K2 extends keyof BrochureContent[K1]>(
     pageKey: K1,
     fieldKey: K2,
@@ -33,7 +35,7 @@ const SectionTitle: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   <h3 className="text-lg font-headline font-semibold mt-6 mb-3 text-primary">{children}</h3>
 );
 
-const FieldSet: React.FC<{ label: string; htmlFor: string; children: React.ReactNode; description?: string; className?: string }> = ({ label, htmlFor, children, description, className }) => (
+const FieldSet: React.FC<{ label: string; htmlFor?: string; children: React.ReactNode; description?: string; className?: string }> = ({ label, htmlFor, children, description, className }) => (
   <div className={cn("space-y-1.5 mb-4", className)}>
     <Label htmlFor={htmlFor} className="font-semibold text-sm">{label}</Label>
     {children}
@@ -41,31 +43,17 @@ const FieldSet: React.FC<{ label: string; htmlFor: string; children: React.React
   </div>
 );
 
-export const BrochureEditor: React.FC<BrochureEditorProps> = ({ content, onContentChange, onAmenityItemChange, onListItemChange, onSetContent }) => {
+export const BrochureEditor: React.FC<BrochureEditorProps> = ({ content, onContentChange, onAmenityItemChange, onListItemChange }) => {
   const { toast } = useToast();
   const [isLoadingAi, setIsLoadingAi] = useState<Record<string, boolean>>({});
 
-  const handleFileChange = useCallback((pageKey: keyof BrochureContent, fieldKey: keyof BrochureContent[keyof BrochureContent], event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        // @ts-ignore
-        onContentChange(pageKey, fieldKey, reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
+  const handleImageChange = useCallback((pageKey: keyof BrochureContent, fieldKey: keyof BrochureContent[keyof BrochureContent], dataUri: string | null) => {
+    // @ts-ignore
+    onContentChange(pageKey, fieldKey, dataUri);
   }, [onContentChange]);
 
-  const handleAmenityImageChange = useCallback((amenityId: string, event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        onAmenityItemChange(amenityId, 'imageUrl', reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
+  const handleAmenityImageChange = useCallback((amenityId: string, dataUri: string | null) => {
+    onAmenityItemChange(amenityId, 'imageUrl', dataUri);
   }, [onAmenityItemChange]);
 
 
@@ -77,7 +65,7 @@ export const BrochureEditor: React.FC<BrochureEditorProps> = ({ content, onConte
     ) => {
     const imageDataUri = content[imageFieldPage][imageFieldKey] as string;
     if (!imageDataUri || !imageDataUri.startsWith('data:image')) {
-      toast({ title: "AI Suggestion Error", description: "Please upload an image first.", variant: "destructive" });
+      toast({ title: "AI Suggestion Error", description: "Please upload an image first for AI suggestions.", variant: "destructive" });
       return;
     }
 
@@ -101,7 +89,6 @@ export const BrochureEditor: React.FC<BrochureEditorProps> = ({ content, onConte
     }
   };
 
-
   const renderListEditor = (pageKey: keyof BrochureContent, fieldKey: keyof BrochureContent[keyof BrochureContent], list: string[], labelPrefix: string) => (
     <div>
       {(list as string[]).map((item, index) => (
@@ -124,30 +111,43 @@ export const BrochureEditor: React.FC<BrochureEditorProps> = ({ content, onConte
         <AccordionItem value="page1">
           <AccordionTrigger className="font-headline text-base">Page 1: Cover & Introduction</AccordionTrigger>
           <AccordionContent className="pt-2 space-y-4">
-            <FieldSet label="Logo Text Line 1" htmlFor="p1-logoTextLine1"><Input id="p1-logoTextLine1" value={content.page1.logoTextLine1} onChange={e => onContentChange('page1', 'logoTextLine1', e.target.value)} /></FieldSet>
-            <FieldSet label="Logo Text Line 2" htmlFor="p1-logoTextLine2"><Input id="p1-logoTextLine2" value={content.page1.logoTextLine2} onChange={e => onContentChange('page1', 'logoTextLine2', e.target.value)} /></FieldSet>
-            <FieldSet label="Tagline (नमन)" htmlFor="p1-tagline"><Input id="p1-tagline" value={content.page1.tagline} onChange={e => onContentChange('page1', 'tagline', e.target.value)} /></FieldSet>
+            <ImageDropzone
+                label="Builder Logo (Optional)"
+                currentImage={content.page1.builderLogoImage}
+                onFileChange={(dataUri) => handleImageChange('page1', 'builderLogoImage', dataUri)}
+                aspectRatio="logo"
+                className="mb-4"
+            />
+            <FieldSet label="Logo Text Line 1 (Fallback)" htmlFor="p1-logoTextLine1" description="Displayed if no logo image is uploaded."><Input id="p1-logoTextLine1" value={content.page1.logoTextLine1} onChange={e => onContentChange('page1', 'logoTextLine1', e.target.value)} /></FieldSet>
+            <FieldSet label="Logo Text Line 2 (Fallback)" htmlFor="p1-logoTextLine2" description="Displayed if no logo image is uploaded."><Input id="p1-logoTextLine2" value={content.page1.logoTextLine2} onChange={e => onContentChange('page1', 'logoTextLine2', e.target.value)} /></FieldSet>
+            <FieldSet label="Tagline (e.g., Sanskrit phrase or Motto)" htmlFor="p1-tagline"><Input id="p1-tagline" value={content.page1.tagline} onChange={e => onContentChange('page1', 'tagline', e.target.value)} /></FieldSet>
+            
             <SectionTitle>Main Section</SectionTitle>
             <FieldSet label="Main Title" htmlFor="p1-mainTitle"><Input id="p1-mainTitle" value={content.page1.mainTitle} onChange={e => onContentChange('page1', 'mainTitle', e.target.value)} /></FieldSet>
             <FieldSet label="Subtitle" htmlFor="p1-subTitle"><Input id="p1-subTitle" value={content.page1.subTitle} onChange={e => onContentChange('page1', 'subTitle', e.target.value)} /></FieldSet>
-            <FieldSet label="Building Image" htmlFor="p1-buildingImage" description="Image for the main building rendering.">
-              <Input id="p1-buildingImage" type="file" accept="image/*" onChange={e => handleFileChange('page1', 'buildingImage', e)} />
-              {content.page1.buildingImage && content.page1.buildingImage.startsWith('data:image') && <img src={content.page1.buildingImage} alt="Preview" className="mt-2 max-h-32 rounded-md border" />}
-            </FieldSet>
+            <ImageDropzone
+                label="Building Image"
+                currentImage={content.page1.buildingImage}
+                onFileChange={(dataUri) => handleImageChange('page1', 'buildingImage', dataUri)}
+                aspectRatio="landscape"
+                className="mb-4"
+            />
+            
             <SectionTitle>Introduction</SectionTitle>
             <FieldSet label="Intro Heading" htmlFor="p1-introHeading"><Input id="p1-introHeading" value={content.page1.introHeading} onChange={e => onContentChange('page1', 'introHeading', e.target.value)} /></FieldSet>
             <FieldSet label="Intro Paragraph 1" htmlFor="p1-introPara1">
               <Textarea id="p1-introPara1" value={content.page1.introPara1} onChange={e => onContentChange('page1', 'introPara1', e.target.value)} rows={4}/>
-              <Button onClick={() => handleAiSuggest('page1', 'buildingImage', 'page1', 'introPara1')} variant="outline" size="sm" className="mt-1.5 text-xs" disabled={isLoadingAi['page1-introPara1']}>
+              <Button onClick={() => handleAiSuggest('page1', 'buildingImage', 'page1', 'introPara1')} variant="outline" size="sm" className="mt-1.5 text-xs" disabled={isLoadingAi['page1-introPara1'] || !content.page1.buildingImage}>
                 <Wand2 className="mr-1.5 h-3.5 w-3.5" /> {isLoadingAi['page1-introPara1'] ? 'Suggesting...' : 'Suggest Text'}
               </Button>
             </FieldSet>
             <FieldSet label="Intro Paragraph 2" htmlFor="p1-introPara2">
               <Textarea id="p1-introPara2" value={content.page1.introPara2} onChange={e => onContentChange('page1', 'introPara2', e.target.value)} rows={4}/>
-               <Button onClick={() => handleAiSuggest('page1', 'buildingImage', 'page1', 'introPara2')} variant="outline" size="sm" className="mt-1.5 text-xs" disabled={isLoadingAi['page1-introPara2']}>
+               <Button onClick={() => handleAiSuggest('page1', 'buildingImage', 'page1', 'introPara2')} variant="outline" size="sm" className="mt-1.5 text-xs" disabled={isLoadingAi['page1-introPara2'] || !content.page1.buildingImage}>
                 <Wand2 className="mr-1.5 h-3.5 w-3.5" /> {isLoadingAi['page1-introPara2'] ? 'Suggesting...' : 'Suggest Text'}
               </Button>
             </FieldSet>
+
             <SectionTitle>Developer Info</SectionTitle>
             <FieldSet label="Developer Heading" htmlFor="p1-developerHeading"><Input id="p1-developerHeading" value={content.page1.developerHeading} onChange={e => onContentChange('page1', 'developerHeading', e.target.value)} /></FieldSet>
             <FieldSet label="Developer Paragraph" htmlFor="p1-developerPara"><Textarea id="p1-developerPara" value={content.page1.developerPara} onChange={e => onContentChange('page1', 'developerPara', e.target.value)} rows={3}/></FieldSet>
@@ -159,10 +159,14 @@ export const BrochureEditor: React.FC<BrochureEditorProps> = ({ content, onConte
           <AccordionContent className="pt-2 space-y-4">
             <FieldSet label="Site Address Heading" htmlFor="p2-siteAddressHeading"><Input id="p2-siteAddressHeading" value={content.page2.siteAddressHeading} onChange={e => onContentChange('page2', 'siteAddressHeading', e.target.value)} /></FieldSet>
             <FieldSet label="Site Address" htmlFor="p2-siteAddress"><Textarea id="p2-siteAddress" value={content.page2.siteAddress} onChange={e => onContentChange('page2', 'siteAddress', e.target.value)} rows={4}/></FieldSet>
-            <FieldSet label="Location Map Image" htmlFor="p2-locationMapImage">
-              <Input id="p2-locationMapImage" type="file" accept="image/*" onChange={e => handleFileChange('page2', 'locationMapImage', e)} />
-              {content.page2.locationMapImage && content.page2.locationMapImage.startsWith('data:image') && <img src={content.page2.locationMapImage} alt="Map Preview" className="mt-2 max-h-32 rounded-md border" />}
-            </FieldSet>
+            <ImageDropzone
+                label="Location Map Image"
+                currentImage={content.page2.locationMapImage}
+                onFileChange={(dataUri) => handleImageChange('page2', 'locationMapImage', dataUri)}
+                aspectRatio="landscape"
+                className="mb-4"
+            />
+            
             <SectionTitle>Connectivity Details</SectionTitle>
             <FieldSet label="Connectivity Heading" htmlFor="p2-connectivityHeading"><Input id="p2-connectivityHeading" value={content.page2.connectivityHeading} onChange={e => onContentChange('page2', 'connectivityHeading', e.target.value)} /></FieldSet>
             
@@ -186,30 +190,36 @@ export const BrochureEditor: React.FC<BrochureEditorProps> = ({ content, onConte
             <FieldSet label="Amenities Heading" htmlFor="p3-amenitiesHeading"><Input id="p3-amenitiesHeading" value={content.page3.amenitiesHeading} onChange={e => onContentChange('page3', 'amenitiesHeading', e.target.value)} /></FieldSet>
             <SectionTitle>Amenities List</SectionTitle>
             {content.page3.amenities.map((amenity) => (
-              <div key={amenity.id} className="p-3 border rounded-md space-y-2 bg-muted/20">
+              <div key={amenity.id} className="p-3 border rounded-md space-y-3 bg-muted/20">
                 <FieldSet label={`Icon (Emoji)`} htmlFor={`p3-amenity-icon-${amenity.id}`} className="mb-2">
                   <Input 
                     id={`p3-amenity-icon-${amenity.id}`} 
                     value={amenity.icon} 
                     onChange={e => onAmenityItemChange(amenity.id, 'icon', e.target.value)} 
-                    maxLength={2}
+                    maxLength={2} // For emojis
                     className="w-16 text-center"
                   />
                 </FieldSet>
                 <FieldSet label="Amenity Text" htmlFor={`p3-amenity-text-${amenity.id}`} className="mb-2">
                   <Input id={`p3-amenity-text-${amenity.id}`} value={amenity.text} onChange={e => onAmenityItemChange(amenity.id, 'text', e.target.value)} />
                 </FieldSet>
-                <FieldSet label="Amenity Image (Optional)" htmlFor={`p3-amenity-image-${amenity.id}`} description="Small icon for the amenity." className="mb-0">
-                  <Input id={`p3-amenity-image-${amenity.id}`} type="file" accept="image/*" onChange={e => handleAmenityImageChange(amenity.id, e)} />
-                  {amenity.imageUrl && amenity.imageUrl.startsWith('data:image') && <img src={amenity.imageUrl} alt={amenity.text} className="mt-2 h-10 w-10 rounded-sm border object-contain" />}
-                </FieldSet>
+                 <ImageDropzone
+                    label="Amenity Image (Optional)"
+                    currentImage={amenity.imageUrl}
+                    onFileChange={(dataUri) => handleAmenityImageChange(amenity.id, dataUri)}
+                    aspectRatio="square"
+                    className="mb-0"
+                />
               </div>
             ))}
             <FieldSet label="Master Plan Heading" htmlFor="p3-masterPlanHeading"><Input id="p3-masterPlanHeading" value={content.page3.masterPlanHeading} onChange={e => onContentChange('page3', 'masterPlanHeading', e.target.value)} /></FieldSet>
-            <FieldSet label="Master Plan Image" htmlFor="p3-masterPlanImage">
-              <Input id="p3-masterPlanImage" type="file" accept="image/*" onChange={e => handleFileChange('page3', 'masterPlanImage', e)} />
-              {content.page3.masterPlanImage && content.page3.masterPlanImage.startsWith('data:image') && <img src={content.page3.masterPlanImage} alt="Master Plan Preview" className="mt-2 max-h-32 rounded-md border" />}
-            </FieldSet>
+            <ImageDropzone
+                label="Master Plan Image"
+                currentImage={content.page3.masterPlanImage}
+                onFileChange={(dataUri) => handleImageChange('page3', 'masterPlanImage', dataUri)}
+                aspectRatio="landscape"
+                className="mb-4"
+            />
           </AccordionContent>
         </AccordionItem>
 
@@ -217,10 +227,13 @@ export const BrochureEditor: React.FC<BrochureEditorProps> = ({ content, onConte
           <AccordionTrigger className="font-headline text-base">Page 4: Floor Plans & Contact</AccordionTrigger>
           <AccordionContent className="pt-2 space-y-4">
             <FieldSet label="Floor Plan Heading" htmlFor="p4-floorPlanHeading"><Input id="p4-floorPlanHeading" value={content.page4.floorPlanHeading} onChange={e => onContentChange('page4', 'floorPlanHeading', e.target.value)} /></FieldSet>
-            <FieldSet label="Floor Plan Image" htmlFor="p4-floorPlanImage">
-              <Input id="p4-floorPlanImage" type="file" accept="image/*" onChange={e => handleFileChange('page4', 'floorPlanImage', e)} />
-              {content.page4.floorPlanImage && content.page4.floorPlanImage.startsWith('data:image') && <img src={content.page4.floorPlanImage} alt="Floor Plan Preview" className="mt-2 max-h-32 rounded-md border" />}
-            </FieldSet>
+             <ImageDropzone
+                label="Floor Plan Image"
+                currentImage={content.page4.floorPlanImage}
+                onFileChange={(dataUri) => handleImageChange('page4', 'floorPlanImage', dataUri)}
+                aspectRatio="square" // Or 'portrait' depending on typical floor plan shape
+                className="mb-4"
+            />
             <SectionTitle>Specifications</SectionTitle>
             <FieldSet label="Specifications Heading" htmlFor="p4-specsHeading"><Input id="p4-specsHeading" value={content.page4.specsHeading} onChange={e => onContentChange('page4', 'specsHeading', e.target.value)} /></FieldSet>
             <FieldSet label="Carpet Area" htmlFor="p4-specsCarpetArea"><Input id="p4-specsCarpetArea" value={content.page4.specsCarpetArea} onChange={e => onContentChange('page4', 'specsCarpetArea', e.target.value)} /></FieldSet>
@@ -250,7 +263,3 @@ export const BrochureEditor: React.FC<BrochureEditorProps> = ({ content, onConte
     </div>
   );
 };
-
-function cn(...args: (string | undefined | null | false)[]): string {
-  return args.filter(Boolean).join(' ');
-}

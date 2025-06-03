@@ -1,10 +1,11 @@
+
 import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: 'Brochure Builder',
-  description: 'Create and customize your brochure.',
+  title: 'Brochure Builder Pro',
+  description: 'Create and customize your professional brochure.',
 };
 
 export default function RootLayout({

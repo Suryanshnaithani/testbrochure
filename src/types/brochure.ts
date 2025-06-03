@@ -12,6 +12,8 @@ export interface BrochureContent {
     brochureTitle: string;
   };
   page1: {
+    builderLogoImage?: string; // data URI or URL
+    builderLogoImageAiHint?: string;
     logoTextLine1: string;
     logoTextLine2: string;
     tagline: string;

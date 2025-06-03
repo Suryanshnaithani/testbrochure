@@ -22,9 +22,13 @@ const parseStyle = (styleString: string | undefined): React.CSSProperties => {
   return style;
 };
 
-const isPlaceholderImageSrc = (src: string | undefined): boolean => {
+const isPlaceholderImageSrc = (src: string | undefined | null): boolean => {
   return !!src && src.startsWith('https://placehold.co');
 };
+
+const isActualImageSrc = (src: string | undefined | null): boolean => {
+    return !!src && (src.startsWith('data:image') || (src.startsWith('http') && !isPlaceholderImageSrc(src)));
+}
 
 
 export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> = ({ content, viewMode }) => {
@@ -38,14 +42,14 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
     position: 'relative',
     overflow: 'hidden',
     fontFamily: "'PT Sans', Arial, sans-serif",
-    color: '#333', // Default text color
+    color: '#333', 
     flexShrink: 0,
   };
   
   const pageStylePortrait: React.CSSProperties = {
     ...pageBaseStyle,
     boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
-    margin: '0 auto 30px auto', // For screen view
+    margin: '0 auto 30px auto', 
   };
   
   const pageSpreadStyle: React.CSSProperties = {
@@ -57,7 +61,7 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
     background: 'white', 
     overflow: 'hidden',
     flexShrink: 0,
-    marginBottom: '30px', // For screen view
+    marginBottom: '30px', 
   };
 
   const pageOnSpreadStyle: React.CSSProperties = {
@@ -66,10 +70,11 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
     boxShadow: 'none', 
   };
 
-  const getImageContainerClass = (imageSrc: string | undefined) => {
-    return imageSrc && isPlaceholderImageSrc(imageSrc) ? 'no-print' : '';
+  const getImageContainerClass = (imageSrc: string | undefined | null) => {
+    return (imageSrc && isPlaceholderImageSrc(imageSrc)) || !imageSrc ? 'no-print' : '';
   };
 
+  const p1BuilderLogoContainerClass = getImageContainerClass(page1.builderLogoImage);
   const p1BuildingImageContainerClass = getImageContainerClass(page1.buildingImage);
   const p2LocationMapImageContainerClass = getImageContainerClass(page2.locationMapImage);
   const p3MasterPlanImageContainerClass = getImageContainerClass(page3.masterPlanImage);
@@ -78,17 +83,28 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
 
   const renderPage1Content = () => (
     <>
-      <div style={parseStyle("display: flex; justify-content: space-between; align-items: flex-start; padding: 30px 40px 20px 40px; background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);")}>
-          <div style={parseStyle("display: flex; align-items: center; gap: 15px;")}>
-              <div style={parseStyle("width: 60px; height: 60px; background: #1e40af; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 14px; text-align: center; line-height: 1.2;")}>
-                {page1.logoTextLine1}
-              </div>
-              <div>
-                  <div style={parseStyle("font-size: 24px; font-weight: bold; color: #1e40af; margin-bottom: 2px; font-family: 'Poppins', sans-serif;")}>{page1.logoTextLine1}</div>
-                  <div style={parseStyle("font-size: 10px; color: #1e40af; font-weight: 500;")}>{page1.logoTextLine2}</div>
-              </div>
-          </div>
-          <div style={parseStyle("font-size: 20px; color: #f97316; font-weight: bold; font-family: 'Poppins', sans-serif;")}>{page1.tagline}</div>
+      <div style={parseStyle("display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); min-height: 80px;")}>
+          {isActualImageSrc(page1.builderLogoImage) ? (
+            <div 
+              style={parseStyle("width: 150px; height: 60px; position: relative;")}
+              className={p1BuilderLogoContainerClass} // handles print visibility for placeholder
+            >
+              <Image src={page1.builderLogoImage!} alt="Builder Logo" layout="fill" objectFit="contain" data-ai-hint={page1.builderLogoImageAiHint} />
+            </div>
+          ) : isPlaceholderImageSrc(page1.builderLogoImage) ? (
+             <div 
+              style={parseStyle("width: 150px; height: 60px; background: #e2e8f0; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #64748b;")}
+              className={p1BuilderLogoContainerClass}
+            >
+              <Image src={page1.builderLogoImage!} alt="Builder Logo Placeholder" layout="fill" objectFit="contain" data-ai-hint={page1.builderLogoImageAiHint} />
+            </div>
+          ) : ( // Fallback text logo
+            <div>
+                <div style={parseStyle("font-size: 24px; font-weight: bold; color: #1e40af; margin-bottom: 2px; font-family: 'Poppins', sans-serif;")}>{page1.logoTextLine1}</div>
+                <div style={parseStyle("font-size: 10px; color: #1e40af; font-weight: 500;")}>{page1.logoTextLine2}</div>
+            </div>
+          )}
+          <div style={parseStyle("font-size: 20px; color: #f97316; font-weight: bold; font-family: 'Poppins', sans-serif; text-align: right;")}>{page1.tagline}</div>
       </div>
       
       <div style={parseStyle("text-align: center; padding: 30px 40px;")}>
@@ -101,10 +117,10 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
             style={parseStyle("width: 100%; max-width: 450px; height: 280px; margin: 0 auto; background: linear-gradient(45deg, #e2e8f0, #cbd5e1); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #64748b; font-size: 16px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); position: relative; overflow: hidden;")}
             className={p1BuildingImageContainerClass}
           >
-              {(page1.buildingImage && (page1.buildingImage.startsWith('data:') || (page1.buildingImage.startsWith('http') && !isPlaceholderImageSrc(page1.buildingImage)))) ? (
-                  <Image src={page1.buildingImage} alt={page1.mainTitle + " building"} layout="fill" objectFit="cover" data-ai-hint={page1.buildingImageAiHint}/>
+              {isActualImageSrc(page1.buildingImage) ? (
+                  <Image src={page1.buildingImage!} alt={page1.mainTitle + " building"} layout="fill" objectFit="cover" data-ai-hint={page1.buildingImageAiHint}/>
                 ) : isPlaceholderImageSrc(page1.buildingImage) ? (
-                  <Image src={page1.buildingImage} alt="Building placeholder" layout="fill" objectFit="cover" data-ai-hint={page1.buildingImageAiHint}/>
+                  <Image src={page1.buildingImage!} alt="Building placeholder" layout="fill" objectFit="cover" data-ai-hint={page1.buildingImageAiHint}/>
                 ) : (
                   <>
                     <div style={parseStyle("position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 80%; height: 70%; background: linear-gradient(to top, #94a3b8, #cbd5e1); clip-path: polygon(10% 100%, 25% 20%, 35% 100%, 45% 30%, 55% 100%, 65% 15%, 75% 100%, 90% 25%, 100% 100%, 0% 100%);")}></div>
@@ -158,10 +174,10 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
                 style={parseStyle("width: 100%; height: 250px; background: linear-gradient(45deg, #f1f5f9, #e2e8f0); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #64748b; font-size: 16px; position: relative; overflow: hidden;")}
                 className={p2LocationMapImageContainerClass}
               >
-                  {(page2.locationMapImage && (page2.locationMapImage.startsWith('data:') || (page2.locationMapImage.startsWith('http') && !isPlaceholderImageSrc(page2.locationMapImage)))) ? (
-                    <Image src={page2.locationMapImage} alt="Location Map" layout="fill" objectFit="cover" data-ai-hint={page2.locationMapImageAiHint} />
+                  {isActualImageSrc(page2.locationMapImage) ? (
+                    <Image src={page2.locationMapImage!} alt="Location Map" layout="fill" objectFit="cover" data-ai-hint={page2.locationMapImageAiHint} />
                   ) : isPlaceholderImageSrc(page2.locationMapImage) ? (
-                    <Image src={page2.locationMapImage} alt="Location map placeholder" layout="fill" objectFit="cover" data-ai-hint={page2.locationMapImageAiHint} />
+                    <Image src={page2.locationMapImage!} alt="Location map placeholder" layout="fill" objectFit="cover" data-ai-hint={page2.locationMapImageAiHint} />
                   ) : (
                     <>
                       <div style={parseStyle("position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: linear-gradient(rgba(148,163,184,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.3) 1px, transparent 1px); background-size: 20px 20px;")}></div>
@@ -208,17 +224,15 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
           <h3 style={parseStyle("font-size: 20px; font-weight: bold; color: #1e40af; margin: 0 0 20px 0; font-family: 'Poppins', sans-serif;")}>{page3.amenitiesHeading}</h3>
           <div style={parseStyle("display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px;")}>
               {page3.amenities.map(amenity => {
-                const amenityImageIsActual = amenity.imageUrl && (amenity.imageUrl.startsWith('data:') || (amenity.imageUrl.startsWith('http') && !isPlaceholderImageSrc(amenity.imageUrl)));
-                const amenityImageIsPlaceholderForDisplay = amenity.imageUrl && isPlaceholderImageSrc(amenity.imageUrl);
                 const amenityImageContainerClass = getImageContainerClass(amenity.imageUrl);
 
                 return (
                   <div key={amenity.id} style={parseStyle("background: rgba(255,255,255,0.9); padding: 15px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100px;")}>
-                      <div className={amenityImageContainerClass} style={{ width: '40px', height: '40px', marginBottom: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        {amenityImageIsActual ? (
-                          <Image src={amenity.imageUrl!} alt={amenity.text} width={40} height={40} style={{ objectFit: 'contain' }} data-ai-hint={amenity.imageAiHint}/>
-                        ) : amenityImageIsPlaceholderForDisplay ? (
-                           <Image src={amenity.imageUrl!} alt="Amenity placeholder" width={40} height={40} style={{ objectFit: 'contain' }} data-ai-hint={amenity.imageAiHint}/>
+                      <div className={amenityImageContainerClass} style={{ width: '40px', height: '40px', marginBottom: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow:'hidden' }}>
+                        {isActualImageSrc(amenity.imageUrl) ? (
+                          <Image src={amenity.imageUrl!} alt={amenity.text} layout="fill" style={{ objectFit: 'contain' }} data-ai-hint={amenity.imageAiHint}/>
+                        ) : isPlaceholderImageSrc(amenity.imageUrl) ? (
+                           <Image src={amenity.imageUrl!} alt="Amenity placeholder" layout="fill" style={{ objectFit: 'contain' }} data-ai-hint={amenity.imageAiHint}/>
                         ) : (
                           <span style={parseStyle("font-size: 28px;")}>{amenity.icon}</span>
                         )}
@@ -236,10 +250,10 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
             style={parseStyle("width: 100%; height: 350px; background: linear-gradient(45deg, #f1f5f9, #e2e8f0); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #64748b; font-size: 16px; position: relative; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.08);")}
             className={p3MasterPlanImageContainerClass}
           >
-            {(page3.masterPlanImage && (page3.masterPlanImage.startsWith('data:') || (page3.masterPlanImage.startsWith('http') && !isPlaceholderImageSrc(page3.masterPlanImage)))) ? (
-                <Image src={page3.masterPlanImage} alt="Master Plan" layout="fill" objectFit="cover" data-ai-hint={page3.masterPlanImageAiHint} />
+            {isActualImageSrc(page3.masterPlanImage) ? (
+                <Image src={page3.masterPlanImage!} alt="Master Plan" layout="fill" objectFit="cover" data-ai-hint={page3.masterPlanImageAiHint} />
             ) : isPlaceholderImageSrc(page3.masterPlanImage) ? (
-                <Image src={page3.masterPlanImage} alt="Master plan placeholder" layout="fill" objectFit="cover" data-ai-hint={page3.masterPlanImageAiHint} />
+                <Image src={page3.masterPlanImage!} alt="Master plan placeholder" layout="fill" objectFit="cover" data-ai-hint={page3.masterPlanImageAiHint} />
             ) : (
               <>
                 <div style={parseStyle("position: absolute; top: 20%; left: 30%; width: 40%; height: 60%; background: #cbd5e1; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #475569;")}>Main Building Block</div>
@@ -270,10 +284,10 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
                   style={parseStyle("flex: 1.2; height: 280px; background: rgba(255,255,255,0.9); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center;")}
                   className={p4FloorPlanImageContainerClass}
                 >
-                    {(page4.floorPlanImage && (page4.floorPlanImage.startsWith('data:') || (page4.floorPlanImage.startsWith('http') && !isPlaceholderImageSrc(page4.floorPlanImage)))) ? (
-                      <Image src={page4.floorPlanImage} alt="Floor Plan" layout="fill" objectFit="contain" data-ai-hint={page4.floorPlanImageAiHint}/>
+                    {isActualImageSrc(page4.floorPlanImage) ? (
+                      <Image src={page4.floorPlanImage!} alt="Floor Plan" layout="fill" objectFit="contain" data-ai-hint={page4.floorPlanImageAiHint}/>
                     ) : isPlaceholderImageSrc(page4.floorPlanImage) ? (
-                      <Image src={page4.floorPlanImage} alt="Floor plan placeholder" layout="fill" objectFit="contain" data-ai-hint={page4.floorPlanImageAiHint}/>
+                      <Image src={page4.floorPlanImage!} alt="Floor plan placeholder" layout="fill" objectFit="contain" data-ai-hint={page4.floorPlanImageAiHint}/>
                     ) : (
                       <>
                         <div style={parseStyle("position: absolute; top: 20%; left: 15%; width: 35%; height: 50%; border: 2px solid #1e40af; background: rgba(30,64,175,0.1); display: flex; align-items: center; justify-content: center; font-size: 12px; color: #1e40af;")}>Bedroom Area</div>
@@ -346,12 +360,12 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
         id="brochure-container"
         style={{
           display: 'flex',
-          flexDirection: 'row', // For horizontal scrolling of spreads
+          flexDirection: 'row', 
           gap: '30px', 
           padding: '20px', 
           alignItems: 'flex-start',
-          overflowX: 'auto', // Allows scrolling if spreads exceed viewport width
-          width: 'max-content', // Ensures container expands to fit all spreads
+          overflowX: 'auto', 
+          width: 'max-content', 
         }}
       >
         <div className="page-spread" style={pageSpreadStyle}>
