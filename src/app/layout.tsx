@@ -15,11 +15,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      {/*
-        The <head> tag is automatically managed by Next.js in the App Router.
-        Do not add a manual <head> tag here.
-        <link> tags for fonts, preconnects, etc., can be direct children of <html>.
-      */}
+      {/* The <head> tag is automatically managed by Next.js. Font links below are correctly placed. */}
       <link rel="preconnect" href="https://fonts.googleapis.com" />
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
