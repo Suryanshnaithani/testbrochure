@@ -16,7 +16,7 @@ interface BrochurePreviewProps {
 }
 
 export const BrochurePreview: React.FC<BrochurePreviewProps> = ({ content, onDownloadPdf, onResetContent }) => {
-  const [viewMode, setViewMode] = useState<'portrait' | 'landscape'>('portrait'); // For potential future use, currently aesthetic
+  const [viewMode, setViewMode] = useState<'portrait' | 'landscape'>('portrait');
 
   return (
     <div className="flex flex-col h-full">
@@ -28,6 +28,7 @@ export const BrochurePreview: React.FC<BrochurePreviewProps> = ({ content, onDow
               id="view-mode-toggle"
               checked={viewMode === 'landscape'}
               onCheckedChange={(checked) => setViewMode(checked ? 'landscape' : 'portrait')}
+              aria-label={`Switch to ${viewMode === 'portrait' ? 'landscape' : 'portrait'} view`}
             />
             <Label htmlFor="view-mode-toggle" className="text-sm">
               {viewMode === 'portrait' ? 'Portrait View' : 'Landscape View'}
@@ -43,22 +44,23 @@ export const BrochurePreview: React.FC<BrochurePreviewProps> = ({ content, onDow
       </div>
       <div 
         id="brochure-preview-area" 
-        className="flex-grow overflow-auto p-4 md:p-8 bg-muted/40 flex justify-center items-start"
-        style={{
-            // This style helps center the A4 page and scale it down if needed, especially in landscape conceptual view
-            transformOrigin: 'top center',
-            // transform: viewMode === 'landscape' ? 'scale(0.7) rotate(-90deg) translateY(-100%) translateX(-10%)' : 'scale(0.85)', // Example scaling
-        }}
+        className={`flex-grow overflow-auto p-4 md:p-8 bg-muted/40 flex ${
+          viewMode === 'landscape' 
+            ? 'flex-row items-start justify-start' 
+            : 'flex-col items-center justify-center' 
+        }`}
       >
         <div 
-            className="shadow-2xl"
+            className="shadow-2xl" // This div will be scaled
             style={{ 
-                transform: viewMode === 'landscape' ? 'scale(0.65) rotate(0deg)' : 'scale(0.85)', // Simplified scaling for now
-                transformOrigin: 'top center', 
-                transition: 'transform 0.3s ease-out'
+                transform: viewMode === 'landscape' ? 'scale(0.70)' : 'scale(0.80)',
+                transformOrigin: viewMode === 'landscape' ? 'top left' : 'top center', 
+                transition: 'transform 0.3s ease-out',
+                // Ensure the div takes space according to its content for flexbox in #brochure-preview-area
+                // The child <BrochureTemplateRenderer> will handle its internal flex for landscape
             }}
         > 
-          <BrochureTemplateRenderer content={content} />
+          <BrochureTemplateRenderer content={content} viewMode={viewMode} />
         </div>
       </div>
     </div>

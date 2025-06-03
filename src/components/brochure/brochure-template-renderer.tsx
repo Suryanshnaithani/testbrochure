@@ -1,9 +1,11 @@
+
 import type { BrochureContent } from '@/types/brochure';
 import Image from 'next/image';
 import React from 'react';
 
 interface BrochureTemplateRendererProps {
   content: BrochureContent;
+  viewMode: 'portrait' | 'landscape';
 }
 
 // Helper to convert inline styles string to JSX style object
@@ -22,26 +24,44 @@ const parseStyle = (styleString: string | undefined): React.CSSProperties => {
 };
 
 
-export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> = ({ content }) => {
+export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> = ({ content, viewMode }) => {
   const { page1, page2, page3, page4 } = content;
 
-  // Common styles for pages, helps reduce repetition if needed, but mostly keeping inline as per original
-  const pageStyle: React.CSSProperties = {
+  const pageBaseStyle: React.CSSProperties = {
     width: '210mm',
-    minHeight: '297mm', // Use minHeight for content flexibility
-    margin: '0 auto 30px auto',
+    minHeight: '297mm',
     background: 'white',
     position: 'relative',
-    boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+    boxShadow: '0 4px 20px rgba(0,0,0,0.05)', // Reduced shadow for potentially tighter layout
     overflow: 'hidden',
-    fontFamily: "'PT Sans', Arial, sans-serif", // Ensure body font applies
+    fontFamily: "'PT Sans', Arial, sans-serif",
+    flexShrink: 0, // Important for landscape flex layout
+  };
+  
+  const pageStylePortrait: React.CSSProperties = {
+    ...pageBaseStyle,
+    margin: '0 auto 30px auto', // Centered with bottom margin
   };
 
+  const pageStyleLandscape: React.CSSProperties = {
+    ...pageBaseStyle,
+    margin: '0', // Margin will be handled by gap in the container
+  };
+  
+  const currentPageStyle = viewMode === 'landscape' ? pageStyleLandscape : pageStylePortrait;
 
   return (
-    <div id="brochure-container">
+    <div 
+      id="brochure-container"
+      style={{
+        display: viewMode === 'landscape' ? 'flex' : 'block',
+        flexDirection: viewMode === 'landscape' ? 'row' : undefined,
+        gap: viewMode === 'landscape' ? '20px' : undefined, // Spacing between pages in landscape
+        padding: viewMode === 'landscape' ? '20px' : '0', // Padding around pages in landscape
+      }}
+    >
       {/* PAGE 1: COVER & INTRODUCTION */}
-      <div className="page" style={pageStyle}>
+      <div className="page" style={currentPageStyle}>
         <div style={parseStyle("display: flex; justify-content: space-between; align-items: flex-start; padding: 30px 40px 20px 40px; background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);")}>
             <div style={parseStyle("display: flex; align-items: center; gap: 15px;")}>
                 <div style={parseStyle("width: 60px; height: 60px; background: #1e40af; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 14px;")}>
@@ -67,7 +87,7 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
                   ) : (
                     <>
                       <div style={parseStyle("position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 80%; height: 70%; background: linear-gradient(to top, #94a3b8, #cbd5e1); clip-path: polygon(10% 100%, 25% 20%, 35% 100%, 45% 30%, 55% 100%, 65% 15%, 75% 100%, 90% 25%, 100% 100%, 0% 100%);")}></div>
-                      <span style={parseStyle("position: relative; z-index: 1;")}>Building Rendering</span>
+                      <span style={parseStyle("position: relative; z-index: 1;")}>Building Rendering Placeholder</span>
                     </>
                   )}
             </div>
@@ -85,7 +105,7 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
             </div>
         </div>
         
-        <div style={parseStyle("padding: 0 40px 30px 40px;")}> {/* Added padding to match others */}
+        <div style={parseStyle("padding: 0 40px 30px 40px;")}>
             <div style={parseStyle("background: #1e40af; color: white; padding: 20px; border-radius: 12px;")}>
                 <h4 style={parseStyle("font-size: 16px; font-weight: bold; margin: 0 0 10px 0; font-family: 'Poppins', sans-serif;")}>{page1.developerHeading}</h4>
                 <p style={parseStyle("font-size: 12px; line-height: 1.5; margin: 0;")}>
@@ -96,10 +116,10 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
       </div>
 
       {/* PAGE 2: LOCATION & CONNECTIVITY */}
-      <div className="page" style={pageStyle}>
+      <div className="page" style={currentPageStyle}>
         <div style={parseStyle("background: #1e40af; color: white; padding: 20px 40px; text-align: center;")}>
             <h2 style={parseStyle("font-size: 28px; font-weight: bold; margin: 0; font-family: 'Poppins', sans-serif;")}>Location & Connectivity</h2>
-            <p style={parseStyle("font-size: 14px; margin: 5px 0 0 0; opacity: 0.9;")}>Prime Location in Pushpak Nagar, Navi Mumbai</p>
+            <p style={parseStyle("font-size: 14px; margin: 5px 0 0 0; opacity: 0.9;")}>Explore the Prime Location</p>
         </div>
         
         <div style={parseStyle("padding: 30px 40px;")}>
@@ -119,14 +139,14 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
                       <>
                         <div style={parseStyle("position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: linear-gradient(rgba(148,163,184,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.3) 1px, transparent 1px); background-size: 20px 20px;")}></div>
                         <div style={parseStyle("position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 20px; height: 20px; background: #ef4444; border-radius: 50% 50% 50% 0; transform: translate(-50%, -50%) rotate(-45deg);")}></div>
-                        <span style={parseStyle("position: relative; z-index: 1;")}>Interactive Location Map</span>
+                        <span style={parseStyle("position: relative; z-index: 1;")}>Location Map Placeholder</span>
                       </>
                     )}
                 </div>
             </div>
         </div>
         
-        <div style={parseStyle("padding: 0 40px 30px 40px;")}> {/* Added padding */}
+        <div style={parseStyle("padding: 0 40px 30px 40px;")}>
             <div style={parseStyle("background: rgba(255,255,255,0.9); padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);")}>
                 <h3 style={parseStyle("font-size: 18px; font-weight: bold; color: #1e40af; margin: 0 0 20px 0; font-family: 'Poppins', sans-serif;")}>{page2.connectivityHeading}</h3>
                 <div style={parseStyle("display: grid; grid-template-columns: 1fr 1fr; gap: 20px;")}>
@@ -149,10 +169,10 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
       </div>
 
       {/* PAGE 3: AMENITIES & MASTER PLAN */}
-      <div className="page" style={pageStyle}>
+      <div className="page" style={currentPageStyle}>
         <div style={parseStyle("background: #1e40af; color: white; padding: 20px 40px; text-align: center;")}>
             <h2 style={parseStyle("font-size: 28px; font-weight: bold; margin: 0; font-family: 'Poppins', sans-serif;")}>Amenities & Master Plan</h2>
-            <p style={parseStyle("font-size: 14px; margin: 5px 0 0 0; opacity: 0.9;")}>World-Class Facilities for Modern Living</p>
+            <p style={parseStyle("font-size: 14px; margin: 5px 0 0 0; opacity: 0.9;")}>Facilities for Modern Living</p>
         </div>
         
         <div style={parseStyle("padding: 30px 40px;")}>
@@ -160,7 +180,7 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
             <div style={parseStyle("display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px;")}>
                 {page3.amenities.map(amenity => (
                   <div key={amenity.id} style={parseStyle("background: rgba(255,255,255,0.9); padding: 15px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;")}>
-                      <div style={parseStyle("font-size: 24px; margin-bottom: 8px;")}>{amenity.icon}</div>
+                      <div style={parseStyle("font-size: 24px; margin-bottom: 8px;")}>{amenity.icon}</div> {/* Ensure icons are generic */}
                       <div style={parseStyle("font-size: 12px; font-weight: bold; color: #1e40af;")}>{amenity.text}</div>
                   </div>
                 ))}
@@ -172,12 +192,10 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
                   <Image src={page3.masterPlanImage} alt="Master Plan" layout="fill" objectFit="cover" data-ai-hint={page3.masterPlanImageAiHint} />
               ) : (
                 <>
-                  <div style={parseStyle("position: absolute; top: 20%; left: 30%; width: 40%; height: 60%; background: #cbd5e1; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #475569;")}>Main Building</div>
-                  <div style={parseStyle("position: absolute; top: 20%; left: 10%; width: 15%; height: 25%; background: #a7f3d0; border-radius: 4px;")}></div>
-                  <div style={parseStyle("position: absolute; top: 50%; left: 10%; width: 15%; height: 25%; background: #fde68a; border-radius: 4px;")}></div>
-                  <div style={parseStyle("position: absolute; top: 20%; right: 10%; width: 15%; height: 25%; background: #fecaca; border-radius: 4px;")}></div>
-                  <div style={parseStyle("position: absolute; top: 50%; right: 10%; width: 15%; height: 25%; background: #c7d2fe; border-radius: 4px;")}></div>
-                  <span style={parseStyle("position: relative; z-index: 1;")}>Site Layout Plan</span>
+                  <div style={parseStyle("position: absolute; top: 20%; left: 30%; width: 40%; height: 60%; background: #cbd5e1; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #475569;")}>Main Building Block</div>
+                  <div style={parseStyle("position: absolute; top: 20%; left: 10%; width: 15%; height: 25%; background: #a7f3d0; border-radius: 4px; text-align: center; font-size: 10px; padding-top: 5px;")}>Green Area</div>
+                  <div style={parseStyle("position: absolute; top: 50%; left: 10%; width: 15%; height: 25%; background: #fde68a; border-radius: 4px; text-align: center; font-size: 10px; padding-top: 5px;")}>Parking</div>
+                  <span style={parseStyle("position: relative; z-index: 1;")}>Site Layout Placeholder</span>
                 </>
               )}
             </div>
@@ -185,10 +203,10 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
       </div>
 
       {/* PAGE 4: FLOOR PLANS & BACK COVER */}
-      <div className="page" style={pageStyle}>
+      <div className="page" style={currentPageStyle}>
           <div style={parseStyle("background: #1e40af; color: white; padding: 20px 40px; text-align: center;")}>
               <h2 style={parseStyle("font-size: 28px; font-weight: bold; margin: 0; font-family: 'Poppins', sans-serif;")}>Floor Plans & Contact</h2>
-              <p style={parseStyle("font-size: 14px; margin: 5px 0 0 0; opacity: 0.9;")}>Thoughtfully Designed Living Spaces</p>
+              <p style={parseStyle("font-size: 14px; margin: 5px 0 0 0; opacity: 0.9;")}>Detailed Layouts and Information</p>
           </div>
           
           <div style={parseStyle("padding: 30px 40px;")}>
@@ -200,11 +218,9 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
                         <Image src={page4.floorPlanImage} alt="Floor Plan" layout="fill" objectFit="contain" data-ai-hint={page4.floorPlanImageAiHint}/>
                       ) : (
                         <>
-                          <div style={parseStyle("position: absolute; top: 20%; left: 15%; width: 35%; height: 50%; border: 2px solid #1e40af; background: rgba(30,64,175,0.1); display: flex; align-items: center; justify-content: center; font-size: 12px; color: #1e40af;")}>Bedroom</div>
-                          <div style={parseStyle("position: absolute; top: 20%; right: 15%; width: 35%; height: 30%; border: 2px solid #1e40af; background: rgba(30,64,175,0.1); display: flex; align-items: center; justify-content: center; font-size: 12px; color: #1e40af;")}>Kitchen</div>
-                          <div style={parseStyle("position: absolute; bottom: 30%; right: 15%; width: 35%; height: 20%; border: 2px solid #1e40af; background: rgba(30,64,175,0.1); display: flex; align-items: center; justify-content: center; font-size: 12px; color: #1e40af;")}>Bathroom</div>
-                          <div style={parseStyle("position: absolute; bottom: 20%; left: 15%; width: 70%; height: 15%; border: 2px solid #1e40af; background: rgba(30,64,175,0.1); display: flex; align-items: center; justify-content: center; font-size: 12px; color: #1e40af;")}>Balcony</div>
-                          <span style={parseStyle("position: absolute; top: 10px; left: 10px; font-size: 14px; color: #64748b;")}>Floor Plan Layout</span>
+                          <div style={parseStyle("position: absolute; top: 20%; left: 15%; width: 35%; height: 50%; border: 2px solid #1e40af; background: rgba(30,64,175,0.1); display: flex; align-items: center; justify-content: center; font-size: 12px; color: #1e40af;")}>Bedroom Area</div>
+                          <div style={parseStyle("position: absolute; top: 20%; right: 15%; width: 35%; height: 30%; border: 2px solid #1e40af; background: rgba(30,64,175,0.1); display: flex; align-items: center; justify-content: center; font-size: 12px; color: #1e40af;")}>Kitchen Area</div>
+                          <span style={parseStyle("position: absolute; top: 10px; left: 10px; font-size: 14px; color: #64748b;")}>Floor Plan Placeholder</span>
                         </>
                       )}
                   </div>
@@ -251,16 +267,15 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
               
               <div style={parseStyle("background: #1e40af; color: white; padding: 20px; border-radius: 12px; text-align: center;")}>
                   <h4 style={parseStyle("font-size: 14px; font-weight: bold; margin: 0 0 10px 0; font-family: 'Poppins', sans-serif;")}>{page4.legalInfoHeading}</h4>
-                  <p style={parseStyle("font-size: 12px; margin: 0 0 8px 0;")}>MahaRERA Registration No.: {page4.legalReraNo}</p>
+                  <p style={parseStyle("font-size: 12px; margin: 0 0 8px 0;")}>RERA No.: {page4.legalReraNo}</p>
                   <p style={parseStyle("font-size: 11px; margin: 0; opacity: 0.9;")}>{page4.legalReraLinkText}</p>
               </div>
           </div>
           
           <div style={parseStyle("position: absolute; bottom: 0; left: 0; right: 0; background: #374151; color: white; padding: 15px 40px; text-align: center;")}>
               <p style={parseStyle("font-size: 9px; color: #d1d5db; line-height: 1.4; margin: 0;")}>
-                  This Brochure is purely conceptual, indicative and not a legal offering. All illustrations & pictures are artistic impression only. 
-                  The plans, drawings, amenities etc. are subject to the approval of respected authorities & may be changed without notification if necessary. 
-                  The promoter/architects reserves the rights to add/desire/alter any items/details/specifications/elevation mentioned here in the brochure.
+                  Disclaimer: This brochure is for illustrative purposes only and does not constitute a legal offering. 
+                  All specifications, plans, and images are indicative and subject to change by authorities or the developer without prior notice.
               </p>
           </div>
       </div>
