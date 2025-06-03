@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useCallback, useRef } from 'react';
-import { UploadCloud, Image as ImageIcon, XCircle } from 'lucide-react';
+import { UploadCloud, Image as ImageIconLucide, XCircle } from 'lucide-react'; // Renamed to avoid conflict
 import { cn } from '@/lib/utils';
 import { Button } from './button';
 
@@ -11,7 +11,7 @@ interface ImageDropzoneProps {
   currentImage?: string | null; // data URI or URL
   label: string;
   className?: string;
-  aspectRatio?: 'square' | 'landscape' | 'portrait' | 'logo'; // For styling the dropzone box
+  aspectRatio?: 'square' | 'landscape' | 'portrait' | 'logo';
   clearable?: boolean;
 }
 
@@ -40,7 +40,7 @@ export const ImageDropzone: React.FC<ImageDropzoneProps> = ({
         onFileChange(dataUri);
       };
       reader.readAsDataURL(file);
-    } else if (file === null) { // Explicitly cleared
+    } else if (file === null) { 
         setPreview(null);
         onFileChange(null);
     }
@@ -61,7 +61,7 @@ export const ImageDropzone: React.FC<ImageDropzoneProps> = ({
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!isDragging) setIsDragging(true); // Ensure dragging state is true
+    if (!isDragging) setIsDragging(true);
   };
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
@@ -85,10 +85,10 @@ export const ImageDropzone: React.FC<ImageDropzoneProps> = ({
   };
 
   const handleClearImage = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation(); // Prevent click from triggering file input
+    e.stopPropagation(); 
     handleFileProcess(null);
     if (fileInputRef.current) {
-        fileInputRef.current.value = ""; // Reset file input
+        fileInputRef.current.value = ""; 
     }
   };
   
@@ -96,8 +96,8 @@ export const ImageDropzone: React.FC<ImageDropzoneProps> = ({
     switch (aspectRatio) {
       case 'square': return 'aspect-square';
       case 'portrait': return 'aspect-[3/4]';
-      case 'logo': return 'aspect-[2.5/1] max-h-24'; // specific for logos, e.g., 150x60
-      default: return 'aspect-video'; // landscape
+      case 'logo': return 'aspect-[2.5/1] max-h-24'; 
+      default: return 'aspect-video'; 
     }
   };
 
@@ -109,7 +109,7 @@ export const ImageDropzone: React.FC<ImageDropzoneProps> = ({
           "relative group flex flex-col items-center justify-center border-2 border-dashed rounded-md cursor-pointer transition-colors",
           getAspectRatioClass(),
           isDragging ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/70',
-          preview ? 'border-solid' : ''
+          preview ? 'border-solid border-primary/30' : 'bg-muted/30 hover:bg-muted/50' // Subtle bg for empty state
         )}
         onClick={handleClick}
         onDragEnter={handleDragEnter}
@@ -126,26 +126,28 @@ export const ImageDropzone: React.FC<ImageDropzoneProps> = ({
         />
         {preview ? (
           <>
-            <img src={preview} alt="Preview" className="object-contain w-full h-full rounded-md" />
+            <img src={preview} alt={`${label} Preview`} className="object-contain w-full h-full rounded-md" />
             {clearable && (
                  <Button
                     variant="ghost"
                     size="icon"
                     onClick={handleClearImage}
-                    className="absolute top-1 right-1 h-6 w-6 bg-background/70 hover:bg-destructive/80 hover:text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                    aria-label="Clear image"
+                    className="absolute top-1.5 right-1.5 h-7 w-7 bg-background/80 hover:bg-destructive hover:text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity p-1"
+                    aria-label={`Clear ${label}`}
                 >
-                    <XCircle className="h-4 w-4" />
+                    <XCircle className="h-5 w-5" />
                 </Button>
             )}
           </>
         ) : (
-          <div className="flex flex-col items-center justify-center text-center p-4">
-            <UploadCloud className={cn("h-10 w-10 mb-2", isDragging ? "text-primary" : "text-muted-foreground")} />
-            <p className={cn("text-sm font-medium", isDragging ? "text-primary" : "text-muted-foreground")}>
-              Drag & drop or click to upload
+          <div className="flex flex-col items-center justify-center text-center p-3 h-full">
+            <ImageIconLucide className={cn("h-8 w-8 mb-2", isDragging ? "text-primary" : "text-muted-foreground/60")} />
+            <p className={cn("text-xs font-medium", isDragging ? "text-primary" : "text-muted-foreground/90")}>
+              {label}
             </p>
-            <p className="text-xs text-muted-foreground/80">{label}</p>
+            <p className="text-xs text-muted-foreground/70 mt-0.5">
+              Drag & drop or click
+            </p>
           </div>
         )}
       </div>

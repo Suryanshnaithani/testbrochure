@@ -1,5 +1,5 @@
 
-import type { BrochureContent } from '@/types/brochure'; 
+import type { BrochureContent } from '@/types/brochure';
 import Image from 'next/image';
 import React from 'react';
 
@@ -29,6 +29,59 @@ const isPlaceholderImageSrc = (src: string | undefined | null): boolean => {
 const isActualImageSrc = (src: string | undefined | null): boolean => {
     return !!src && (src.startsWith('data:image') || (src.startsWith('http') && !isPlaceholderImageSrc(src)));
 }
+
+// New Professional Placeholder Component
+const ProfessionalPlaceholder: React.FC<{
+  altText: string;
+  aiHint?: string;
+  className?: string; // For no-print or other container classes
+  iconSize?: number;
+  baseWidth?: string; // e.g. '150px'
+  baseHeight?: string; // e.g. '60px'
+}> = ({ altText, aiHint, className, iconSize = 24, baseWidth = '100%', baseHeight = '100%' }) => {
+  const placeholderText = aiHint || altText || "Image";
+  return (
+    <div
+      className={className}
+      style={{
+        width: baseWidth,
+        height: baseHeight,
+        backgroundColor: '#f9fafb', // Tailwind gray-50
+        border: '1px dashed #e5e7eb', // Tailwind gray-200
+        borderRadius: '8px',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: '#9ca3af', // Tailwind gray-400
+        padding: '10px',
+        boxSizing: 'border-box',
+        overflow: 'hidden',
+        textAlign: 'center',
+      }}
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width={iconSize}
+        height={iconSize}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        style={{ marginBottom: '8px', opacity: 0.8 }}
+      >
+        <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+        <circle cx="9" cy="9" r="2" />
+        <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+      </svg>
+      <p style={{ fontSize: '11px', margin: 0, lineHeight: '1.2', wordBreak: 'break-word' }}>
+        {placeholderText}
+      </p>
+    </div>
+  );
+};
 
 
 export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> = ({ content, viewMode }) => {
@@ -70,40 +123,34 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
     boxShadow: 'none',
   };
 
-  const getImageContainerClass = (imageSrc: string | undefined | null) => {
-    return (imageSrc && isPlaceholderImageSrc(imageSrc)) || !imageSrc ? 'no-print' : '';
+  const getImagePrintClass = (imageSrc: string | undefined | null) => {
+    // If it's a default placeholder, hide it for printing. Otherwise, it's printable.
+    return isPlaceholderImageSrc(imageSrc) ? 'no-print' : '';
   };
-
-  const p1BuilderLogoContainerClass = getImageContainerClass(page1.builderLogoImage);
-  const p1BuildingImageContainerClass = getImageContainerClass(page1.buildingImage);
-  const p2LocationMapImageContainerClass = getImageContainerClass(page2.locationMapImage);
-  const p3MasterPlanImageContainerClass = getImageContainerClass(page3.masterPlanImage);
-  const p4FloorPlanImageContainerClass = getImageContainerClass(page4.floorPlanImage);
 
 
   const renderPage1Content = () => (
     <>
       <div style={parseStyle("display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); min-height: 80px;")}>
-          {isActualImageSrc(page1.builderLogoImage) ? (
-            <div
-              style={parseStyle("width: 150px; height: 60px; position: relative;")}
-              className={p1BuilderLogoContainerClass}
-            >
+          <div style={{ width: '150px', height: '60px', position: 'relative' }}>
+            {isActualImageSrc(page1.builderLogoImage) ? (
               <Image src={page1.builderLogoImage!} alt="Builder Logo" layout="fill" objectFit="contain" data-ai-hint={page1.builderLogoImageAiHint || 'company logo'} />
-            </div>
-          ) : isPlaceholderImageSrc(page1.builderLogoImage) ? (
-             <div
-              style={parseStyle("width: 150px; height: 60px; background: #e2e8f0; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #64748b;")}
-              className={p1BuilderLogoContainerClass}
-            >
-              <Image src={page1.builderLogoImage!} alt="Builder Logo Placeholder" layout="fill" objectFit="contain" data-ai-hint={page1.builderLogoImageAiHint || 'company logo'} />
-            </div>
-          ) : page1.logoTextLine1 || page1.logoTextLine2 ? (
-            <div>
+            ) : (page1.logoTextLine1 || page1.logoTextLine2) && !page1.builderLogoImage && !isPlaceholderImageSrc(page1.builderLogoImage) ? ( // Show text fallback only if no image at all
+              <div>
                 <div style={parseStyle("font-size: 24px; font-weight: bold; color: #1e40af; margin-bottom: 2px; font-family: 'Poppins', sans-serif;")}>{page1.logoTextLine1}</div>
                 <div style={parseStyle("font-size: 10px; color: #1e40af; font-weight: 500;")}>{page1.logoTextLine2}</div>
-            </div>
-          ) : <div style={parseStyle("width: 150px; height: 60px;")}></div>}
+              </div>
+            ) : (
+              <ProfessionalPlaceholder
+                altText="Builder Logo"
+                aiHint={page1.builderLogoImageAiHint}
+                className={getImagePrintClass(page1.builderLogoImage)}
+                baseWidth="150px"
+                baseHeight="60px"
+                iconSize={20}
+              />
+            )}
+          </div>
           {page1.tagline && <div style={parseStyle("font-size: 20px; color: #f97316; font-weight: bold; font-family: 'Poppins', sans-serif; text-align: right;")}>{page1.tagline}</div>}
       </div>
 
@@ -112,22 +159,21 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
           {page1.subTitle && <p style={parseStyle("font-size: 18px; color: #64748b; margin: 0; letter-spacing: 3px; font-weight: 500;")}>{page1.subTitle}</p>}
       </div>
 
-      {(page1.buildingImage || page1.mainTitle) && (
-        <div style={parseStyle("text-align: center; padding: 0 40px 30px 40px;")}>
-            <div
-              style={parseStyle("width: 100%; max-width: 450px; height: 280px; margin: 0 auto; background: #e2e8f0; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #64748b; font-size: 16px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); position: relative; overflow: hidden;")}
-              className={p1BuildingImageContainerClass}
-            >
-                {isActualImageSrc(page1.buildingImage) ? (
-                    <Image src={page1.buildingImage!} alt={page1.mainTitle || "Building"} layout="fill" objectFit="cover" data-ai-hint={page1.buildingImageAiHint || 'modern building'}/>
-                  ) : isPlaceholderImageSrc(page1.buildingImage) ? (
-                    <Image src={page1.buildingImage!} alt="Building placeholder" layout="fill" objectFit="cover" data-ai-hint={page1.buildingImageAiHint || 'modern building'}/>
-                  ) : (
-                    page1.mainTitle && <span style={parseStyle("position: relative; z-index: 1;")}>{page1.mainTitle} Placeholder</span>
-                  )}
-            </div>
+      <div style={parseStyle("padding: 0 40px 30px 40px; text-align: center;")}>
+        <div style={{ maxWidth: '450px', height: '280px', margin: '0 auto', position: 'relative', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 8px 25px rgba(0,0,0,0.05)' }}>
+          {isActualImageSrc(page1.buildingImage) ? (
+            <Image src={page1.buildingImage!} alt={page1.mainTitle || "Building"} layout="fill" objectFit="cover" data-ai-hint={page1.buildingImageAiHint || 'modern building'}/>
+          ) : (
+            <ProfessionalPlaceholder
+              altText={page1.mainTitle || "Building Image"}
+              aiHint={page1.buildingImageAiHint}
+              className={getImagePrintClass(page1.buildingImage)}
+              baseHeight="280px"
+              iconSize={48}
+            />
+          )}
         </div>
-      )}
+      </div>
 
       {(page1.introHeading || page1.introPara1 || page1.introPara2) && (
         <div style={parseStyle("padding: 0 40px 30px 40px;")}>
@@ -173,23 +219,22 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
             </div>
           )}
 
-          {(page2.locationMapImage) && (
-            <div style={parseStyle("background: rgba(255,255,255,0.9); padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-bottom: 25px;")}>
-                <h3 style={parseStyle("font-size: 18px; font-weight: bold; color: #1e40af; margin: 0 0 20px 0; font-family: 'Poppins', sans-serif;")}>Location Map</h3>
-                <div
-                  style={parseStyle("width: 100%; height: 250px; background: #e2e8f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #64748b; font-size: 16px; position: relative; overflow: hidden;")}
-                  className={p2LocationMapImageContainerClass}
-                >
-                    {isActualImageSrc(page2.locationMapImage) ? (
-                      <Image src={page2.locationMapImage!} alt="Location Map" layout="fill" objectFit="cover" data-ai-hint={page2.locationMapImageAiHint || 'city map'} />
-                    ) : isPlaceholderImageSrc(page2.locationMapImage) ? (
-                      <Image src={page2.locationMapImage!} alt="Location map placeholder" layout="fill" objectFit="cover" data-ai-hint={page2.locationMapImageAiHint || 'city map'} />
-                    ) : (
-                      <span style={parseStyle("position: relative; z-index: 1;")}>Location Map Placeholder</span>
-                    )}
-                </div>
-            </div>
-          )}
+          <div style={parseStyle("background: rgba(255,255,255,0.9); padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-bottom: 25px;")}>
+              <h3 style={parseStyle("font-size: 18px; font-weight: bold; color: #1e40af; margin: 0 0 20px 0; font-family: 'Poppins', sans-serif;")}>Location Map</h3>
+              <div style={{ width: '100%', height: '250px', position: 'relative', borderRadius: '8px', overflow: 'hidden' }}>
+                  {isActualImageSrc(page2.locationMapImage) ? (
+                    <Image src={page2.locationMapImage!} alt="Location Map" layout="fill" objectFit="cover" data-ai-hint={page2.locationMapImageAiHint || 'city map'} />
+                  ) : (
+                    <ProfessionalPlaceholder
+                        altText="Location Map"
+                        aiHint={page2.locationMapImageAiHint}
+                        className={getImagePrintClass(page2.locationMapImage)}
+                        baseHeight="250px"
+                        iconSize={40}
+                    />
+                  )}
+              </div>
+          </div>
       </div>
       
       {page2.connectivityHeading && (
@@ -232,22 +277,28 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
         <div>
           {page3.amenitiesHeading && <h3 style={parseStyle("font-size: 20px; font-weight: bold; color: #1e40af; margin: 0 0 20px 0; font-family: 'Poppins', sans-serif;")}>{page3.amenitiesHeading}</h3>}
           {Array.isArray(page3.amenities) && page3.amenities.length > 0 && (
-            <div style={parseStyle("display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 15px; margin-bottom: 30px;")}>
+            <div style={parseStyle("display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 20px; margin-bottom: 30px;")}>
                 {page3.amenities.map(amenity => {
                   if (!amenity.text && !amenity.imageUrl && !amenity.icon) return null;
-                  const amenityImageContainerClass = getImageContainerClass(amenity.imageUrl);
                   const hasContent = amenity.icon || amenity.text || amenity.imageUrl;
 
                   return hasContent ? (
-                    <div key={amenity.id} style={parseStyle("background: rgba(255,255,255,0.9); padding: 15px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 120px;")}>
-                        <div className={amenityImageContainerClass} style={{ width: '70px', height: '70px', marginBottom: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow:'hidden', background: isActualImageSrc(amenity.imageUrl) || isPlaceholderImageSrc(amenity.imageUrl) ? 'transparent' : (amenity.icon ? 'transparent' : '#e2e8f0'), borderRadius: '4px' }}>
+                    <div key={amenity.id} style={parseStyle("background: rgba(255,255,255,0.95); padding: 15px; border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.07); text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; min-height: 150px;")}>
+                        <div style={{ width: '70px', height: '70px', marginBottom: '10px', position: 'relative', overflow:'hidden', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                           {isActualImageSrc(amenity.imageUrl) ? (
-                            <Image src={amenity.imageUrl!} alt={amenity.text || "Amenity"} layout="fill" style={{ objectFit: 'contain' }} data-ai-hint={amenity.imageAiHint || 'amenity icon'}/>
-                          ) : isPlaceholderImageSrc(amenity.imageUrl) ? (
-                             <Image src={amenity.imageUrl!} alt="Amenity placeholder" layout="fill" style={{ objectFit: 'contain' }} data-ai-hint={amenity.imageAiHint || 'amenity icon'}/>
-                          ) : amenity.icon ? (
-                            <span style={parseStyle("font-size: 36px;")}>{amenity.icon}</span>
-                          ): <span style={parseStyle("font-size: 10px; color: #64748b;")}>Icon</span>}
+                            <Image src={amenity.imageUrl!} alt={amenity.text || "Amenity"} layout="fill" style={{ objectFit: 'cover' }} data-ai-hint={amenity.imageAiHint || 'amenity icon'}/>
+                          ) : amenity.icon && (!amenity.imageUrl || isPlaceholderImageSrc(amenity.imageUrl)) ? ( // Show icon if no actual image or if default placeholder
+                            <span style={parseStyle("font-size: 42px;")}>{amenity.icon}</span>
+                          ): (
+                            <ProfessionalPlaceholder
+                                altText={amenity.text || "Amenity"}
+                                aiHint={amenity.imageAiHint}
+                                className={getImagePrintClass(amenity.imageUrl)}
+                                baseWidth="70px"
+                                baseHeight="70px"
+                                iconSize={28}
+                            />
+                          )}
                         </div>
                         <div style={parseStyle("font-size: 13px; font-weight: bold; color: #1e40af; line-height: 1.3;")}>{amenity.text || '[Amenity Text]'}</div>
                     </div>
@@ -257,19 +308,20 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
           )}
         </div>
 
-        {(page3.masterPlanHeading || page3.masterPlanImage) && (
+        {(page3.masterPlanHeading || page3.masterPlanImage || isPlaceholderImageSrc(page3.masterPlanImage)) && (
           <div>
             {page3.masterPlanHeading && <h3 style={parseStyle("font-size: 20px; font-weight: bold; color: #1e40af; margin: 30px 0 20px 0; font-family: 'Poppins', sans-serif;")}>{page3.masterPlanHeading}</h3>}
-            <div
-              style={parseStyle("width: 100%; height: 350px; background: #e2e8f0; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #64748b; font-size: 16px; position: relative; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.08);")}
-              className={p3MasterPlanImageContainerClass}
-            >
+            <div style={{ width: '100%', height: '350px', position: 'relative', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 15px rgba(0,0,0,0.08)' }}>
               {isActualImageSrc(page3.masterPlanImage) ? (
                   <Image src={page3.masterPlanImage!} alt="Master Plan" layout="fill" objectFit="cover" data-ai-hint={page3.masterPlanImageAiHint || 'site layout'} />
-              ) : isPlaceholderImageSrc(page3.masterPlanImage) ? (
-                  <Image src={page3.masterPlanImage!} alt="Master plan placeholder" layout="fill" objectFit="cover" data-ai-hint={page3.masterPlanImageAiHint || 'site layout'} />
               ) : (
-                <span style={parseStyle("position: relative; z-index: 1;")}>Master Plan Placeholder</span>
+                <ProfessionalPlaceholder
+                    altText="Master Plan"
+                    aiHint={page3.masterPlanImageAiHint}
+                    className={getImagePrintClass(page3.masterPlanImage)}
+                    baseHeight="350px"
+                    iconSize={64}
+                />
               )}
             </div>
           </div>
@@ -289,19 +341,19 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
           <div>
             {page4.floorPlanHeading && <h3 style={parseStyle("font-size: 20px; font-weight: bold; color: #1e40af; margin: 0 0 15px 0; font-family: 'Poppins', sans-serif;")}>{page4.floorPlanHeading}</h3>}
             
-            {/* Single Floor Plan Display */}
-            {(page4.floorPlanName || page4.floorPlanImage || page4.specsHeading || (page4.specsFeaturesItems && Array.isArray(page4.specsFeaturesItems) && page4.specsFeaturesItems.length > 0)) && (
+            {(page4.floorPlanName || page4.floorPlanImage || isPlaceholderImageSrc(page4.floorPlanImage) || page4.specsHeading || (page4.specsFeaturesItems && Array.isArray(page4.specsFeaturesItems) && page4.specsFeaturesItems.length > 0)) && (
                 <div style={parseStyle("display: flex; gap: 20px; margin-bottom: 20px; min-height: 280px; border-bottom: 1px solid #eee; padding-bottom: 20px;")}>
-                    <div
-                      style={parseStyle("flex: 1.2; height: 280px; background: #e2e8f0; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center;")}
-                      className={p4FloorPlanImageContainerClass}
-                    >
+                    <div style={{ flex: 1.2, height: '280px', position: 'relative', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 15px rgba(0,0,0,0.08)' }}>
                         {isActualImageSrc(page4.floorPlanImage) ? (
                           <Image src={page4.floorPlanImage!} alt={page4.floorPlanName || `Floor Plan`} layout="fill" objectFit="contain" data-ai-hint={page4.floorPlanImageAiHint || 'floor plan'}/>
-                        ) : isPlaceholderImageSrc(page4.floorPlanImage) ? (
-                          <Image src={page4.floorPlanImage!} alt="Floor plan placeholder" layout="fill" objectFit="contain" data-ai-hint={page4.floorPlanImageAiHint || 'floor plan'}/>
                         ) : (
-                          <span style={parseStyle("font-size: 12px; color: #64748b;")}>{page4.floorPlanName || 'Floor Plan'} Placeholder</span>
+                          <ProfessionalPlaceholder
+                            altText={page4.floorPlanName || "Floor Plan"}
+                            aiHint={page4.floorPlanImageAiHint}
+                            className={getImagePrintClass(page4.floorPlanImage)}
+                            baseHeight="280px"
+                            iconSize={48}
+                          />
                         )}
                     </div>
 
@@ -317,7 +369,6 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
                                 {page4.specsConfiguration && <p style={parseStyle("margin: 0 0 12px 0;")}><strong className="font-semibold" style={{fontWeight: 600}}>Configuration:</strong> {page4.specsConfiguration}</p>}
 
                                 {page4.specsFeaturesTitle && <h5 style={parseStyle("font-size: 13px; font-weight: bold; color: #1e40af; margin: 0 0 6px 0; font-family: 'Poppins', sans-serif;")}>{page4.specsFeaturesTitle}</h5>}
-                                {/* Ensure specsFeaturesItems is an array before mapping */}
                                 {page4.specsFeaturesItems && Array.isArray(page4.specsFeaturesItems) && page4.specsFeaturesItems.length > 0 && (
                                   <ul style={parseStyle("margin: 0; padding-left: 15px; font-size: 11px;")}>
                                       {page4.specsFeaturesItems.map((item, idx) => item && <li key={idx} style={{marginBottom: '3px'}}>{item}</li>)}
@@ -435,4 +486,3 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
     </div>
   );
 };
-
