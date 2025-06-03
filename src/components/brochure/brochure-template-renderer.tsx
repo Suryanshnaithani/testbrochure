@@ -23,6 +23,10 @@ const parseStyle = (styleString: string | undefined): React.CSSProperties => {
   return style;
 };
 
+const isPlaceholderImageSrc = (src: string | undefined): boolean => {
+  return !!src && src.startsWith('https://placehold.co');
+};
+
 
 export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> = ({ content, viewMode }) => {
   const { page1, page2, page3, page4 } = content;
@@ -32,23 +36,44 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
     minHeight: '297mm',
     background: 'white',
     position: 'relative',
-    boxShadow: '0 4px 20px rgba(0,0,0,0.05)', // Reduced shadow for potentially tighter layout
+    boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
     overflow: 'hidden',
     fontFamily: "'PT Sans', Arial, sans-serif",
-    flexShrink: 0, // Important for landscape flex layout
+    flexShrink: 0,
   };
   
   const pageStylePortrait: React.CSSProperties = {
     ...pageBaseStyle,
-    margin: '0 auto 30px auto', // Centered with bottom margin
+    margin: viewMode === 'portrait' ? '0 auto 30px auto' : '0',
   };
 
   const pageStyleLandscape: React.CSSProperties = {
     ...pageBaseStyle,
-    margin: '0', // Margin will be handled by gap in the container
+    margin: '0', 
   };
   
   const currentPageStyle = viewMode === 'landscape' ? pageStyleLandscape : pageStylePortrait;
+
+  // Logic for Page 1 Building Image
+  const p1BuildingImageSrc = page1.buildingImage;
+  const p1BuildingImageIsActual = p1BuildingImageSrc && (p1BuildingImageSrc.startsWith('data:') || (p1BuildingImageSrc.startsWith('http') && !isPlaceholderImageSrc(p1BuildingImageSrc)));
+  const p1BuildingImageContainerClass = !p1BuildingImageIsActual ? 'no-print' : '';
+
+  // Logic for Page 2 Location Map Image
+  const p2LocationMapImageSrc = page2.locationMapImage;
+  const p2LocationMapImageIsActual = p2LocationMapImageSrc && (p2LocationMapImageSrc.startsWith('data:') || (p2LocationMapImageSrc.startsWith('http') && !isPlaceholderImageSrc(p2LocationMapImageSrc)));
+  const p2LocationMapImageContainerClass = !p2LocationMapImageIsActual ? 'no-print' : '';
+
+  // Logic for Page 3 Master Plan Image
+  const p3MasterPlanImageSrc = page3.masterPlanImage;
+  const p3MasterPlanImageIsActual = p3MasterPlanImageSrc && (p3MasterPlanImageSrc.startsWith('data:') || (p3MasterPlanImageSrc.startsWith('http') && !isPlaceholderImageSrc(p3MasterPlanImageSrc)));
+  const p3MasterPlanImageContainerClass = !p3MasterPlanImageIsActual ? 'no-print' : '';
+
+  // Logic for Page 4 Floor Plan Image
+  const p4FloorPlanImageSrc = page4.floorPlanImage;
+  const p4FloorPlanImageIsActual = p4FloorPlanImageSrc && (p4FloorPlanImageSrc.startsWith('data:') || (p4FloorPlanImageSrc.startsWith('http') && !isPlaceholderImageSrc(p4FloorPlanImageSrc)));
+  const p4FloorPlanImageContainerClass = !p4FloorPlanImageIsActual ? 'no-print' : '';
+
 
   return (
     <div 
@@ -56,8 +81,8 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
       style={{
         display: viewMode === 'landscape' ? 'flex' : 'block',
         flexDirection: viewMode === 'landscape' ? 'row' : undefined,
-        gap: viewMode === 'landscape' ? '20px' : undefined, // Spacing between pages in landscape
-        padding: viewMode === 'landscape' ? '20px' : '0', // Padding around pages in landscape
+        gap: viewMode === 'landscape' ? '20px' : undefined,
+        padding: viewMode === 'landscape' ? '20px' : '0',
       }}
     >
       {/* PAGE 1: COVER & INTRODUCTION */}
@@ -81,9 +106,12 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
         </div>
         
         <div style={parseStyle("text-align: center; padding: 0 40px 30px 40px;")}>
-            <div style={parseStyle("width: 100%; max-width: 450px; height: 280px; margin: 0 auto; background: linear-gradient(45deg, #e2e8f0, #cbd5e1); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #64748b; font-size: 16px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); position: relative; overflow: hidden;")}>
-                {page1.buildingImage && (page1.buildingImage.startsWith('data:') || page1.buildingImage.startsWith('http')) ? (
-                    <Image src={page1.buildingImage} alt={page1.mainTitle + " building"} layout="fill" objectFit="cover" data-ai-hint={page1.buildingImageAiHint}/>
+            <div 
+              style={parseStyle("width: 100%; max-width: 450px; height: 280px; margin: 0 auto; background: linear-gradient(45deg, #e2e8f0, #cbd5e1); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #64748b; font-size: 16px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); position: relative; overflow: hidden;")}
+              className={p1BuildingImageContainerClass}
+            >
+                {(p1BuildingImageSrc && (p1BuildingImageSrc.startsWith('data:') || p1BuildingImageSrc.startsWith('http'))) ? (
+                    <Image src={p1BuildingImageSrc} alt={page1.mainTitle + " building"} layout="fill" objectFit="cover" data-ai-hint={page1.buildingImageAiHint}/>
                   ) : (
                     <>
                       <div style={parseStyle("position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 80%; height: 70%; background: linear-gradient(to top, #94a3b8, #cbd5e1); clip-path: polygon(10% 100%, 25% 20%, 35% 100%, 45% 30%, 55% 100%, 65% 15%, 75% 100%, 90% 25%, 100% 100%, 0% 100%);")}></div>
@@ -132,9 +160,12 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
             
             <div style={parseStyle("background: rgba(255,255,255,0.9); padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-bottom: 25px;")}>
                 <h3 style={parseStyle("font-size: 18px; font-weight: bold; color: #1e40af; margin: 0 0 20px 0; font-family: 'Poppins', sans-serif;")}>Location Map</h3>
-                <div style={parseStyle("width: 100%; height: 250px; background: linear-gradient(45deg, #f1f5f9, #e2e8f0); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #64748b; font-size: 16px; position: relative; overflow: hidden;")}>
-                    {page2.locationMapImage && (page2.locationMapImage.startsWith('data:') || page2.locationMapImage.startsWith('http')) ? (
-                      <Image src={page2.locationMapImage} alt="Location Map" layout="fill" objectFit="cover" data-ai-hint={page2.locationMapImageAiHint} />
+                <div 
+                  style={parseStyle("width: 100%; height: 250px; background: linear-gradient(45deg, #f1f5f9, #e2e8f0); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #64748b; font-size: 16px; position: relative; overflow: hidden;")}
+                  className={p2LocationMapImageContainerClass}
+                >
+                    {(p2LocationMapImageSrc && (p2LocationMapImageSrc.startsWith('data:') || p2LocationMapImageSrc.startsWith('http'))) ? (
+                      <Image src={p2LocationMapImageSrc} alt="Location Map" layout="fill" objectFit="cover" data-ai-hint={page2.locationMapImageAiHint} />
                     ) : (
                       <>
                         <div style={parseStyle("position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: linear-gradient(rgba(148,163,184,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.3) 1px, transparent 1px); background-size: 20px 20px;")}></div>
@@ -180,16 +211,19 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
             <div style={parseStyle("display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px;")}>
                 {page3.amenities.map(amenity => (
                   <div key={amenity.id} style={parseStyle("background: rgba(255,255,255,0.9); padding: 15px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;")}>
-                      <div style={parseStyle("font-size: 24px; margin-bottom: 8px;")}>{amenity.icon}</div> {/* Ensure icons are generic */}
+                      <div style={parseStyle("font-size: 24px; margin-bottom: 8px;")}>{amenity.icon}</div>
                       <div style={parseStyle("font-size: 12px; font-weight: bold; color: #1e40af;")}>{amenity.text}</div>
                   </div>
                 ))}
             </div>
             
             <h3 style={parseStyle("font-size: 20px; font-weight: bold; color: #1e40af; margin: 0 0 20px 0; font-family: 'Poppins', sans-serif;")}>{page3.masterPlanHeading}</h3>
-            <div style={parseStyle("width: 100%; height: 200px; background: linear-gradient(45deg, #f1f5f9, #e2e8f0); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #64748b; font-size: 16px; position: relative; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.08);")}>
-              {page3.masterPlanImage && (page3.masterPlanImage.startsWith('data:') || page3.masterPlanImage.startsWith('http')) ? (
-                  <Image src={page3.masterPlanImage} alt="Master Plan" layout="fill" objectFit="cover" data-ai-hint={page3.masterPlanImageAiHint} />
+            <div 
+              style={parseStyle("width: 100%; height: 200px; background: linear-gradient(45deg, #f1f5f9, #e2e8f0); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #64748b; font-size: 16px; position: relative; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.08);")}
+              className={p3MasterPlanImageContainerClass}
+            >
+              {(p3MasterPlanImageSrc && (p3MasterPlanImageSrc.startsWith('data:') || p3MasterPlanImageSrc.startsWith('http'))) ? (
+                  <Image src={p3MasterPlanImageSrc} alt="Master Plan" layout="fill" objectFit="cover" data-ai-hint={page3.masterPlanImageAiHint} />
               ) : (
                 <>
                   <div style={parseStyle("position: absolute; top: 20%; left: 30%; width: 40%; height: 60%; background: #cbd5e1; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #475569;")}>Main Building Block</div>
@@ -213,9 +247,12 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
               <h3 style={parseStyle("font-size: 20px; font-weight: bold; color: #1e40af; margin: 0 0 20px 0; font-family: 'Poppins', sans-serif;")}>{page4.floorPlanHeading}</h3>
               
               <div style={parseStyle("display: flex; gap: 25px; margin-bottom: 30px;")}>
-                  <div style={parseStyle("flex: 1; height: 300px; background: rgba(255,255,255,0.9); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center;")}>
-                      {page4.floorPlanImage && (page4.floorPlanImage.startsWith('data:') || page4.floorPlanImage.startsWith('http')) ? (
-                        <Image src={page4.floorPlanImage} alt="Floor Plan" layout="fill" objectFit="contain" data-ai-hint={page4.floorPlanImageAiHint}/>
+                  <div 
+                    style={parseStyle("flex: 1; height: 300px; background: rgba(255,255,255,0.9); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center;")}
+                    className={p4FloorPlanImageContainerClass}
+                  >
+                      {(p4FloorPlanImageSrc && (p4FloorPlanImageSrc.startsWith('data:') || p4FloorPlanImageSrc.startsWith('http'))) ? (
+                        <Image src={p4FloorPlanImageSrc} alt="Floor Plan" layout="fill" objectFit="contain" data-ai-hint={page4.floorPlanImageAiHint}/>
                       ) : (
                         <>
                           <div style={parseStyle("position: absolute; top: 20%; left: 15%; width: 35%; height: 50%; border: 2px solid #1e40af; background: rgba(30,64,175,0.1); display: flex; align-items: center; justify-content: center; font-size: 12px; color: #1e40af;")}>Bedroom Area</div>
@@ -282,3 +319,4 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
     </div>
   );
 };
+
