@@ -42,27 +42,27 @@ export const BrochurePreview: React.FC<BrochurePreviewProps> = ({ content, onDow
           </Button>
         </div>
       </div>
-      <div 
-        id="brochure-preview-area" 
+      <div
+        id="brochure-preview-area"
         className={`flex-grow overflow-auto p-4 md:p-8 bg-muted/40 flex ${
-          viewMode === 'landscape' 
-            ? 'flex-row items-start justify-start' 
-            : 'flex-col items-center justify-center' 
+          viewMode === 'landscape'
+            ? 'flex-row items-start justify-start'
+            : 'flex-col items-center justify-start' // Changed justify-center to justify-start
         }`}
       >
-        <div 
-            className="shadow-2xl" // This div will be scaled
-            style={{ 
-                transform: viewMode === 'landscape' ? 'scale(0.70)' : 'scale(0.80)',
-                transformOrigin: viewMode === 'landscape' ? 'top left' : 'top center', 
+        <div
+            className="shadow-2xl"
+            style={{
+                display: 'inline-block', // Added to help parent calculate transformed size
+                transform: viewMode === 'landscape' ? 'scale(0.65)' : 'scale(0.75)', // Reduced scale factors
+                transformOrigin: viewMode === 'landscape' ? 'top left' : 'top center',
                 transition: 'transform 0.3s ease-out',
-                // Ensure the div takes space according to its content for flexbox in #brochure-preview-area
-                // The child <BrochureTemplateRenderer> will handle its internal flex for landscape
             }}
-        > 
+        >
           <BrochureTemplateRenderer content={content} viewMode={viewMode} />
         </div>
       </div>
     </div>
   );
 };
+
