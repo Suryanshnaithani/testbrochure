@@ -10,7 +10,20 @@ import { useToast } from "@/hooks/use-toast";
 import React from 'react';
 
 export default function BrochureBuilderPage() {
-  const { content, updateContent, updateAmenityItem, updateListItem, isLoaded, setContent } = useBrochureContent();
+  const { 
+    content, 
+    updateContent, 
+    updateAmenityItem, 
+    addAmenity,
+    removeAmenity,
+    updateListItem, 
+    addFloorPlan,
+    removeFloorPlan,
+    updateFloorPlanItem,
+    updateFloorPlanListItem,
+    isLoaded, 
+    setContent 
+  } = useBrochureContent();
   const { toast } = useToast();
 
   const handleDownloadPdf = () => {
@@ -27,7 +40,7 @@ export default function BrochureBuilderPage() {
     return (
       <div className="flex items-center justify-center min-h-screen bg-muted/30">
         <RefreshCw className="h-10 w-10 animate-spin text-primary" />
-        <p className="ml-3 font-headline text-xl text-primary">Loading Brochure Builder Pro...</p>
+        <p className="ml-3 font-headline text-xl text-primary">Loading Brochure Forge...</p>
       </div>
     );
   }
@@ -47,7 +60,13 @@ export default function BrochureBuilderPage() {
             content={content} 
             onContentChange={updateContent} 
             onAmenityItemChange={updateAmenityItem}
+            onAddAmenity={addAmenity}
+            onRemoveAmenity={removeAmenity}
             onListItemChange={updateListItem}
+            onAddFloorPlan={addFloorPlan}
+            onRemoveFloorPlan={removeFloorPlan}
+            onUpdateFloorPlanItem={updateFloorPlanItem}
+            onUpdateFloorPlanListItem={updateFloorPlanListItem}
             onSetContent={setContent}
           />
         </SidebarContent>
@@ -56,7 +75,7 @@ export default function BrochureBuilderPage() {
          <header className="h-[60px] flex items-center justify-between px-6 border-b bg-card shadow-sm no-print">
             <div className="flex items-center gap-3">
               <SidebarTrigger className="hidden md:flex text-primary hover:text-accent" /> 
-              <h1 className="text-xl font-headline font-semibold text-primary">Brochure Builder Pro</h1>
+              <h1 className="text-xl font-headline font-semibold text-primary">Brochure Forge</h1>
             </div>
           </header>
         <BrochurePreview 
