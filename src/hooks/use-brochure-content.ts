@@ -1,7 +1,7 @@
 
 "use client";
 
-import type { BrochureContent } from '@/types/brochure';
+import type { AmenityItem, BrochureContent } from '@/types/brochure';
 import { defaultBrochureContent } from '@/config/brochure-defaults';
 import { useState, useEffect, useCallback } from 'react';
 
@@ -19,7 +19,6 @@ export function useBrochureContent() {
       }
     } catch (error) {
       console.error("Failed to load content from localStorage:", error);
-      // Fallback to default content if parsing fails or localStorage is unavailable
       setContent(defaultBrochureContent);
     }
     setIsLoaded(true);
@@ -49,27 +48,28 @@ export function useBrochureContent() {
     }));
   }, []);
   
-  const updateAmenityText = useCallback((amenityId: string, newText: string) => {
+  const updateAmenityItem = useCallback((amenityId: string, field: keyof AmenityItem, value: string) => {
     setContent(prevContent => ({
       ...prevContent,
       page3: {
         ...prevContent.page3,
         amenities: prevContent.page3.amenities.map(amenity =>
-          amenity.id === amenityId ? { ...amenity, text: newText } : amenity
+          amenity.id === amenityId ? { ...amenity, [field]: value } : amenity
         ),
       },
     }));
   }, []);
 
+
   const updateListItem = useCallback(<K1 extends keyof BrochureContent, K2 extends keyof BrochureContent[K1]>(
     pageKey: K1,
-    fieldKey: K2, // This must be a key pointing to an array of strings
+    fieldKey: K2, 
     index: number,
     value: string
   ) => {
     setContent(prevContent => {
       const list = prevContent[pageKey][fieldKey] as unknown as string[];
-      if (!Array.isArray(list)) return prevContent; // Type guard
+      if (!Array.isArray(list)) return prevContent; 
 
       const newList = [...list];
       newList[index] = value;
@@ -93,5 +93,5 @@ export function useBrochureContent() {
     }
   }, []);
 
-  return { content, updateContent, updateAmenityText, updateListItem, resetContent, isLoaded, setContent };
+  return { content, updateContent, updateAmenityItem, updateListItem, resetContent, isLoaded, setContent };
 }

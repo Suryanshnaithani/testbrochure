@@ -3,6 +3,8 @@ export interface AmenityItem {
   id: string;
   icon: string; // Emoji or SVG string
   text: string;
+  imageUrl?: string; // data URI or URL for amenity image
+  imageAiHint?: string; // AI hint for amenity image
 }
 
 export interface BrochureContent {

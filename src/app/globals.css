@@ -152,7 +152,7 @@ body {
     margin: 0 !important;
     padding: 0 !important;
     box-shadow: none !important;
-    page-break-inside: avoid !important; /* Try to keep content of what was a spread together if possible, but individual pages will still break */
+    page-break-inside: avoid !important; 
     -webkit-print-color-adjust: exact !important;
     color-adjust: exact !important;
   }
