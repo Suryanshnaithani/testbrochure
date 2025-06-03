@@ -16,11 +16,8 @@ export default function BrochureBuilderPage() {
     updateAmenityItem, 
     addAmenity,
     removeAmenity,
-    updateListItem, 
-    addFloorPlan,
-    removeFloorPlan,
-    updateFloorPlanItem,
-    updateFloorPlanListItem,
+    updateListItem,
+    updatePage4SpecsFeaturesItem, // Updated for single floor plan specs list
     isLoaded, 
     setContent 
   } = useBrochureContent();
@@ -63,10 +60,7 @@ export default function BrochureBuilderPage() {
             onAddAmenity={addAmenity}
             onRemoveAmenity={removeAmenity}
             onListItemChange={updateListItem}
-            onAddFloorPlan={addFloorPlan}
-            onRemoveFloorPlan={removeFloorPlan}
-            onUpdateFloorPlanItem={updateFloorPlanItem}
-            onUpdateFloorPlanListItem={updateFloorPlanListItem}
+            onUpdatePage4SpecsFeaturesItem={updatePage4SpecsFeaturesItem} // Updated prop
             onSetContent={setContent}
           />
         </SidebarContent>

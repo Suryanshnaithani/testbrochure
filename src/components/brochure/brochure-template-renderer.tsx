@@ -1,5 +1,5 @@
 
-import type { BrochureContent, FloorPlanItem } from '@/types/brochure';
+import type { BrochureContent } from '@/types/brochure'; // Removed FloorPlanItem as it's no longer a separate type
 import Image from 'next/image';
 import React from 'react';
 
@@ -78,7 +78,7 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
   const p1BuildingImageContainerClass = getImageContainerClass(page1.buildingImage);
   const p2LocationMapImageContainerClass = getImageContainerClass(page2.locationMapImage);
   const p3MasterPlanImageContainerClass = getImageContainerClass(page3.masterPlanImage);
-  // p4FloorPlanImageContainerClass is removed as it's handled per floor plan item
+  const p4FloorPlanImageContainerClass = getImageContainerClass(page4.floorPlanImage);
 
 
   const renderPage1Content = () => (
@@ -103,7 +103,7 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
                 <div style={parseStyle("font-size: 24px; font-weight: bold; color: #1e40af; margin-bottom: 2px; font-family: 'Poppins', sans-serif;")}>{page1.logoTextLine1}</div>
                 <div style={parseStyle("font-size: 10px; color: #1e40af; font-weight: 500;")}>{page1.logoTextLine2}</div>
             </div>
-          ) : <div style={parseStyle("width: 150px; height: 60px;")}></div>} {/* Empty div to maintain layout if no logo */}
+          ) : <div style={parseStyle("width: 150px; height: 60px;")}></div>}
           <div style={parseStyle("font-size: 20px; color: #f97316; font-weight: bold; font-family: 'Poppins', sans-serif; text-align: right;")}>{page1.tagline}</div>
       </div>
 
@@ -192,9 +192,9 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
                     { title: page2.connectivityHealthcareTitle, items: page2.connectivityHealthcareItems },
                     { title: page2.connectivityEducationTitle, items: page2.connectivityEducationItems },
                   ].map((section, idx) => (
-                    (section.title || (Array.isArray(section.items) && section.items.length > 0)) && (
+                    (section.title || (Array.isArray(section.items) && section.items.length > 0 && section.items.some(item => item))) && (
                         <div key={idx}>
-                            <h4 style={parseStyle("font-size: 14px; font-weight: bold; color: #1e40af; margin: 0 0 10px 0; font-family: 'Poppins', sans-serif;")}>{section.title}</h4>
+                            {section.title && <h4 style={parseStyle("font-size: 14px; font-weight: bold; color: #1e40af; margin: 0 0 10px 0; font-family: 'Poppins', sans-serif;")}>{section.title}</h4>}
                             {Array.isArray(section.items) && section.items.length > 0 && (
                                 <ul style={parseStyle("font-size: 12px; color: #475569; line-height: 1.6; margin: 0; padding-left: 15px;")}>
                                     {section.items.map((item, itemIdx) => item && <li key={itemIdx}>{item}</li>)}
@@ -265,29 +265,25 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
   const renderPage4Content = () => (
     <>
         <div style={parseStyle("background: #1e40af; color: white; padding: 20px 40px; text-align: center;")}>
-            <h2 style={parseStyle("font-size: 28px; font-weight: bold; margin: 0; font-family: 'Poppins', sans-serif;")}>Floor Plans & Contact</h2>
-            <p style={parseStyle("font-size: 14px; margin: 5px 0 0 0; opacity: 0.9;")}>Detailed Layouts and Information</p>
+            <h2 style={parseStyle("font-size: 28px; font-weight: bold; margin: 0; font-family: 'Poppins', sans-serif;")}>Floor Plan & Contact</h2>
+            <p style={parseStyle("font-size: 14px; margin: 5px 0 0 0; opacity: 0.9;")}>Detailed Layout and Information</p>
         </div>
 
         <div style={parseStyle("padding: 25px 40px; display: flex; flex-direction: column; justify-content: space-between; height: calc(100% - 78px - 65px); box-sizing: border-box;")}>
           <div>
             {page4.floorPlanHeading && <h3 style={parseStyle("font-size: 20px; font-weight: bold; color: #1e40af; margin: 0 0 15px 0; font-family: 'Poppins', sans-serif;")}>{page4.floorPlanHeading}</h3>}
-
-            {Array.isArray(page4.floorPlans) && page4.floorPlans.map((floorPlan, fpIndex) => {
-              if (!floorPlan) return null;
-              const floorPlanImageContainerClass = getImageContainerClass(floorPlan.floorPlanImage);
-              const hasFloorPlanContent = floorPlan.name || floorPlan.floorPlanImage || floorPlan.specsHeading || floorPlan.specsCarpetArea || floorPlan.specsBuiltUpArea || floorPlan.specsBalconyArea || floorPlan.specsConfiguration || floorPlan.specsFeaturesTitle || (Array.isArray(floorPlan.specsFeaturesItems) && floorPlan.specsFeaturesItems.length > 0) ;
-
-              return hasFloorPlanContent ? (
-                <div key={floorPlan.id} style={parseStyle("display: flex; gap: 20px; margin-bottom: 20px; min-height: 280px; border-bottom: 1px solid #eee; padding-bottom: 20px;")}>
+            
+            {/* Single Floor Plan Display */}
+            {(page4.floorPlanName || page4.floorPlanImage || page4.specsHeading || page4.specsFeaturesItems.length > 0) && (
+                <div style={parseStyle("display: flex; gap: 20px; margin-bottom: 20px; min-height: 280px; border-bottom: 1px solid #eee; padding-bottom: 20px;")}>
                     <div
                       style={parseStyle("flex: 1.2; height: 280px; background: #e2e8f0; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center;")}
-                      className={floorPlanImageContainerClass}
+                      className={p4FloorPlanImageContainerClass}
                     >
-                        {isActualImageSrc(floorPlan.floorPlanImage) ? (
-                          <Image src={floorPlan.floorPlanImage!} alt={floorPlan.name || `Floor Plan ${fpIndex + 1}`} layout="fill" objectFit="contain" data-ai-hint={floorPlan.floorPlanImageAiHint || 'floor plan'}/>
-                        ) : isPlaceholderImageSrc(floorPlan.floorPlanImage) ? (
-                          <Image src={floorPlan.floorPlanImage!} alt="Floor plan placeholder" layout="fill" objectFit="contain" data-ai-hint={floorPlan.floorPlanImageAiHint || 'floor plan'}/>
+                        {isActualImageSrc(page4.floorPlanImage) ? (
+                          <Image src={page4.floorPlanImage!} alt={page4.floorPlanName || `Floor Plan`} layout="fill" objectFit="contain" data-ai-hint={page4.floorPlanImageAiHint || 'floor plan'}/>
+                        ) : isPlaceholderImageSrc(page4.floorPlanImage) ? (
+                          <Image src={page4.floorPlanImage!} alt="Floor plan placeholder" layout="fill" objectFit="contain" data-ai-hint={page4.floorPlanImageAiHint || 'floor plan'}/>
                         ) : (
                           <span />
                         )}
@@ -295,27 +291,26 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
 
                     <div style={parseStyle("flex: 1;")}>
                         <div style={parseStyle("background: rgba(255,255,255,0.9); padding: 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); height: 280px; overflow-y: auto;")}>
-                            <h4 style={parseStyle("font-size: 16px; font-weight: bold; color: #1e40af; margin: 0 0 10px 0; font-family: 'Poppins', sans-serif;")}>{floorPlan.name || `Floor Plan ${fpIndex + 1}`}</h4>
-                            {floorPlan.specsHeading && <h5 style={parseStyle("font-size: 14px; font-weight: bold; color: #1e40af; margin: 0 0 8px 0; font-family: 'Poppins', sans-serif;")}>{floorPlan.specsHeading}</h5>}
+                            {page4.floorPlanName && <h4 style={parseStyle("font-size: 16px; font-weight: bold; color: #1e40af; margin: 0 0 10px 0; font-family: 'Poppins', sans-serif;")}>{page4.floorPlanName}</h4>}
+                            {page4.specsHeading && <h5 style={parseStyle("font-size: 14px; font-weight: bold; color: #1e40af; margin: 0 0 8px 0; font-family: 'Poppins', sans-serif;")}>{page4.specsHeading}</h5>}
 
                             <div style={parseStyle("font-size: 12px; color: #475569; line-height: 1.5;")}>
-                                {floorPlan.specsCarpetArea && <p style={parseStyle("margin: 0 0 8px 0;")}><strong className="font-semibold" style={{fontWeight: 600}}>Carpet Area:</strong> {floorPlan.specsCarpetArea}</p>}
-                                {floorPlan.specsBuiltUpArea && <p style={parseStyle("margin: 0 0 8px 0;")}><strong className="font-semibold" style={{fontWeight: 600}}>Built-up Area:</strong> {floorPlan.specsBuiltUpArea}</p>}
-                                {floorPlan.specsBalconyArea && <p style={parseStyle("margin: 0 0 8px 0;")}><strong className="font-semibold" style={{fontWeight: 600}}>Balcony:</strong> {floorPlan.specsBalconyArea}</p>}
-                                {floorPlan.specsConfiguration && <p style={parseStyle("margin: 0 0 12px 0;")}><strong className="font-semibold" style={{fontWeight: 600}}>Configuration:</strong> {floorPlan.specsConfiguration}</p>}
+                                {page4.specsCarpetArea && <p style={parseStyle("margin: 0 0 8px 0;")}><strong className="font-semibold" style={{fontWeight: 600}}>Carpet Area:</strong> {page4.specsCarpetArea}</p>}
+                                {page4.specsBuiltUpArea && <p style={parseStyle("margin: 0 0 8px 0;")}><strong className="font-semibold" style={{fontWeight: 600}}>Built-up Area:</strong> {page4.specsBuiltUpArea}</p>}
+                                {page4.specsBalconyArea && <p style={parseStyle("margin: 0 0 8px 0;")}><strong className="font-semibold" style={{fontWeight: 600}}>Balcony:</strong> {page4.specsBalconyArea}</p>}
+                                {page4.specsConfiguration && <p style={parseStyle("margin: 0 0 12px 0;")}><strong className="font-semibold" style={{fontWeight: 600}}>Configuration:</strong> {page4.specsConfiguration}</p>}
 
-                                {floorPlan.specsFeaturesTitle && <h5 style={parseStyle("font-size: 13px; font-weight: bold; color: #1e40af; margin: 0 0 6px 0; font-family: 'Poppins', sans-serif;")}>{floorPlan.specsFeaturesTitle}</h5>}
-                                {Array.isArray(floorPlan.specsFeaturesItems) && floorPlan.specsFeaturesItems.length > 0 && (
+                                {page4.specsFeaturesTitle && <h5 style={parseStyle("font-size: 13px; font-weight: bold; color: #1e40af; margin: 0 0 6px 0; font-family: 'Poppins', sans-serif;")}>{page4.specsFeaturesTitle}</h5>}
+                                {Array.isArray(page4.specsFeaturesItems) && page4.specsFeaturesItems.length > 0 && (
                                   <ul style={parseStyle("margin: 0; padding-left: 15px; font-size: 11px;")}>
-                                      {floorPlan.specsFeaturesItems.map((item, idx) => item && <li key={idx} style={{marginBottom: '3px'}}>{item}</li>)}
+                                      {page4.specsFeaturesItems.map((item, idx) => item && <li key={idx} style={{marginBottom: '3px'}}>{item}</li>)}
                                   </ul>
                                 )}
                             </div>
                         </div>
                     </div>
                 </div>
-              ) : null;
-            })}
+            )}
 
             <div style={parseStyle("background: rgba(255,255,255,0.9); padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-bottom: 15px; margin-top: 20px;")}>
                 {page4.contactInfoHeading && <h3 style={parseStyle("font-size: 16px; font-weight: bold; color: #1e40af; margin: 0 0 15px 0; font-family: 'Poppins', sans-serif;")}>{page4.contactInfoHeading}</h3>}

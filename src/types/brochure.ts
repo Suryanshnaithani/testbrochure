@@ -7,6 +7,8 @@ export interface AmenityItem {
   imageAiHint?: string; // AI hint for amenity image
 }
 
+// FloorPlanItem is removed as we revert to a single floor plan structure on page4
+
 export interface BrochureContent {
   meta: {
     brochureTitle: string;
@@ -19,8 +21,8 @@ export interface BrochureContent {
     tagline: string;
     mainTitle: string;
     subTitle: string;
-    buildingImage: string; // data URI or URL
-    buildingImageAiHint: string;
+    buildingImage?: string; // data URI or URL
+    buildingImageAiHint?: string;
     introHeading: string;
     introPara1: string;
     introPara2: string;
@@ -30,8 +32,8 @@ export interface BrochureContent {
   page2: {
     siteAddressHeading: string;
     siteAddress: string;
-    locationMapImage: string; // data URI or URL
-    locationMapImageAiHint: string;
+    locationMapImage?: string; // data URI or URL
+    locationMapImageAiHint?: string;
     connectivityHeading: string;
     connectivityMetroRailwayTitle: string;
     connectivityMetroRailwayItems: string[];
@@ -46,13 +48,15 @@ export interface BrochureContent {
     amenitiesHeading: string;
     amenities: AmenityItem[];
     masterPlanHeading: string;
-    masterPlanImage: string; // data URI or URL
-    masterPlanImageAiHint: string;
+    masterPlanImage?: string; // data URI or URL
+    masterPlanImageAiHint?: string;
   };
   page4: {
     floorPlanHeading: string;
-    floorPlanImage: string; // data URI or URL
-    floorPlanImageAiHint: string;
+    // Single floor plan details directly on page4
+    floorPlanName: string; // Added for clarity, previously might have been implicit
+    floorPlanImage?: string; // data URI or URL
+    floorPlanImageAiHint?: string;
     specsHeading: string;
     specsCarpetArea: string;
     specsBuiltUpArea: string;
@@ -60,6 +64,7 @@ export interface BrochureContent {
     specsConfiguration: string;
     specsFeaturesTitle: string;
     specsFeaturesItems: string[];
+    // Contact and Legal info remain
     contactInfoHeading: string;
     contactSalesOfficeTitle: string;
     contactSalesOfficePhone: string;
