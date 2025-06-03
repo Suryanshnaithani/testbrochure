@@ -4,7 +4,7 @@
 import type { BrochureContent } from '@/types/brochure';
 import { BrochureTemplateRenderer } from './brochure-template-renderer';
 import { Button } from '@/components/ui/button';
-import { Download, RotateCcw } from 'lucide-react';
+import { Download } from 'lucide-react'; // Removed RotateCcw
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import React, { useState } from 'react';
@@ -12,10 +12,10 @@ import React, { useState } from 'react';
 interface BrochurePreviewProps {
   content: BrochureContent;
   onDownloadPdf: () => void;
-  onResetContent: () => void;
+  // onResetContent prop removed
 }
 
-export const BrochurePreview: React.FC<BrochurePreviewProps> = ({ content, onDownloadPdf, onResetContent }) => {
+export const BrochurePreview: React.FC<BrochurePreviewProps> = ({ content, onDownloadPdf }) => {
   const [viewMode, setViewMode] = useState<'portrait' | 'landscape'>('portrait');
 
   return (
@@ -34,9 +34,7 @@ export const BrochurePreview: React.FC<BrochurePreviewProps> = ({ content, onDow
               {viewMode === 'portrait' ? 'Portrait View' : 'Landscape View'}
             </Label>
           </div>
-          <Button onClick={onResetContent} variant="outline" size="sm">
-            <RotateCcw className="mr-2 h-4 w-4" /> Reset All Content
-          </Button>
+          {/* Reset All Content Button Removed */}
           <Button onClick={onDownloadPdf} size="sm">
             <Download className="mr-2 h-4 w-4" /> Download PDF
           </Button>
@@ -44,17 +42,17 @@ export const BrochurePreview: React.FC<BrochurePreviewProps> = ({ content, onDow
       </div>
       <div
         id="brochure-preview-area"
-        className={`flex-grow overflow-auto p-6 md:p-10 ${ // Increased padding
+        className={`flex-grow overflow-auto p-6 md:p-10 ${
           viewMode === 'landscape'
-            ? 'flex-row items-start justify-start' // justify-start for horizontal scroll to begin from left
+            ? 'flex-row items-start justify-start'
             : 'flex-col items-center justify-start' 
         }`}
       >
         <div
-            // Removed shadow-2xl from here as spreads will have their own
+            id="scaled-brochure-wrapper" // Added ID for print styling
             style={{
                 display: 'inline-block', 
-                transform: viewMode === 'landscape' ? 'scale(0.65)' : 'scale(0.8)', // Adjusted scale
+                transform: viewMode === 'landscape' ? 'scale(0.65)' : 'scale(0.8)',
                 transformOrigin: viewMode === 'landscape' ? 'top left' : 'top center',
                 transition: 'transform 0.3s ease-out',
             }}
@@ -65,4 +63,3 @@ export const BrochurePreview: React.FC<BrochurePreviewProps> = ({ content, onDow
     </div>
   );
 };
-

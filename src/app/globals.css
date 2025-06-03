@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -92,35 +93,122 @@ body {
   }
 }
 
+/* Print styles overhaul */
 @media print {
-  body {
-    padding: 0 !important;
-    margin: 0 !important;
-    background: white !important;
-    -webkit-print-color-adjust: exact !important; /* Chrome, Safari */
-    color-adjust: exact !important; /* Firefox */
+  /* Hide everything by default, then selectively make printable content visible */
+  body, body *, header, nav, aside, footer, div[data-sidebar="sidebar"], div[role="dialog"], div[data-radix-toast-provider] {
+    visibility: hidden !important;
+    background-color: white !important;
+    color: black !important;
+    box-shadow: none !important;
+    border: none !important;
+    margin: 0 !important; /* Reset margins */
+    padding: 0 !important; /* Reset paddings */
   }
-  .page {
-    width: 210mm !important;
-    height: 297mm !important;
+
+  /* Make the brochure wrapper and its contents visible */
+  #scaled-brochure-wrapper, #scaled-brochure-wrapper * {
+    visibility: visible !important;
+  }
+  
+  /* Ensure html and body themselves are visible and take up space */
+  html, body {
+    visibility: visible !important;
+    width: 210mm !important; /* A4 width for the viewport */
+    height: auto !important; /* Auto height based on content */
+    overflow: visible !important;
+    background: white !important; /* Ensure body background is white */
+  }
+
+  /* Reset the scaled wrapper specifically for printing */
+  #scaled-brochure-wrapper {
+    transform: none !important;
+    transform-origin: initial !important; /* Reset transform origin */
+    position: static !important; /* Make it flow naturally in the document */
+    width: 210mm !important; /* A4 width */
+    height: auto !important;
+    display: block !important;
+    margin: 0 !important; /* No margin for the wrapper */
+    padding: 0 !important;
+    overflow: visible !important; /* Allow content to be visible */
+    -webkit-print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  #brochure-container {
+    visibility: visible !important;
+    display: block !important; /* Pages stack vertically */
+    width: 100% !important; /* Takes width from #scaled-brochure-wrapper */
     margin: 0 !important;
+    padding: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  .page-spread {
+    display: block !important; /* Force spreads into a single column of pages */
+    width: 100% !important;   /* Takes width from #brochure-container */
+    height: auto !important; /* Let pages dictate height */
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    page-break-inside: avoid !important; /* Try to keep content of what was a spread together if possible, but individual pages will still break */
+    -webkit-print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+  
+  .page-spread > .page {
+    /* Pages within a spread now act like normal pages for print */
+    margin-bottom: 0 !important; /* No artificial margin */
+    page-break-after: always !important; /* Each page from spread gets its own print page */
+  }
+
+  .page {
+    width: 210mm !important; /* Full A4 width */
+    height: 297mm !important; /* Full A4 height */
+    min-height: 297mm !important;
+    margin: 0 !important; /* Page itself is the A4 area */
+    padding: 0 !important;
     box-shadow: none !important;
     page-break-after: always !important;
-    overflow: hidden !important; /* Ensure content fits */
+    overflow: hidden !important; /* CRITICAL: clip content to A4 */
+    position: relative !important; /* Content within page is relative to page */
+    visibility: visible !important;
+    background: white !important;
+    border: none !important;
+    -webkit-print-color-adjust: exact !important;
+    color-adjust: exact !important;
   }
-  .page:last-child {
+
+  /* Last page of the document or last page within the last spread should not force a page break after */
+  .page:last-child,
+  #brochure-container > .page:last-of-type,
+  #brochure-container > .page-spread:last-of-type > .page:last-of-type {
     page-break-after: avoid !important;
   }
-  /* Hide elements not part of the brochure */
-  body > *:not(#brochure-container), /* If preview is wrapped */
-  body > header, 
-  body > nav, 
-  body > aside, 
-  body > footer,
-  .no-print { /* Add this class to elements to hide during print */
+
+  /* General no-print class for elements that should NEVER print */
+  .no-print, .no-print * {
     display: none !important;
+    visibility: hidden !important; /* Double ensure */
+    width: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
-  #brochure-preview-area { /* Ensure preview area takes full space */
-     padding: 0 !important; margin: 0 !important;
+
+  /* Ensure images print correctly */
+  img {
+    max-width: 100% !important; /* Prevent images from overflowing their containers */
+    height: auto !important;
+    page-break-inside: avoid !important; /* Try to keep images on one page */
+    -webkit-print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  /* Remove any transforms on images that might affect print */
+  img[style*="transform"] {
+      transform: none !important;
   }
 }
