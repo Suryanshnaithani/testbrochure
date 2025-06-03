@@ -7,7 +7,7 @@ import { useBrochureContent } from '@/hooks/use-brochure-content';
 import { Sidebar, SidebarContent, SidebarInset, SidebarProvider, SidebarTrigger, SidebarHeader } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, LayoutDashboard } from 'lucide-react'; // Added LayoutDashboard
 import { useToast } from "@/hooks/use-toast";
 import React from 'react';
 
@@ -20,7 +20,6 @@ export default function BrochureBuilderPage() {
       title: "Preparing PDF",
       description: "Your brochure PDF will be generated using the browser's print functionality.",
     });
-    // Timeout to allow toast to show before print dialog potentially blocks UI updates
     setTimeout(() => {
       window.print();
     }, 500);
@@ -38,19 +37,22 @@ export default function BrochureBuilderPage() {
 
   if (!isLoaded) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <RefreshCw className="h-8 w-8 animate-spin text-primary" />
-        <p className="ml-2 font-headline text-lg">Loading Brochure Builder...</p>
+      <div className="flex items-center justify-center min-h-screen bg-muted/30">
+        <RefreshCw className="h-10 w-10 animate-spin text-primary" />
+        <p className="ml-3 font-headline text-xl text-primary-foreground">Loading Brochure Builder...</p>
       </div>
     );
   }
 
   return (
     <SidebarProvider defaultOpen={true}>
-      <Sidebar collapsible="icon" side="left" variant="sidebar">
-        <SidebarHeader className="h-[60px] flex items-center justify-between border-b">
-           <h1 className="text-lg font-headline font-semibold text-primary px-2">Brochure Editor</h1>
-           <SidebarTrigger className="md:hidden" /> {/* Mobile toggle */}
+      <Sidebar collapsible="icon" side="left" variant="sidebar" className="shadow-md">
+        <SidebarHeader className="h-[60px] flex items-center justify-between border-b px-3">
+           <div className="flex items-center gap-2">
+             <LayoutDashboard className="h-6 w-6 text-primary" />
+             <h1 className="text-lg font-headline font-semibold text-primary">Brochure Editor</h1>
+           </div>
+           <SidebarTrigger className="md:hidden text-primary hover:text-accent" />
         </SidebarHeader>
         <SidebarContent>
           <BrochureEditor 
@@ -62,10 +64,10 @@ export default function BrochureBuilderPage() {
           />
         </SidebarContent>
       </Sidebar>
-      <SidebarInset className="flex flex-col h-screen overflow-hidden"> {/* Ensure SidebarInset itself doesn't scroll */}
-         <header className="h-[60px] flex items-center justify-between px-6 border-b bg-card no-print">
-            <div className="flex items-center gap-2">
-              <SidebarTrigger className="hidden md:flex" /> {/* Desktop toggle */}
+      <SidebarInset className="flex flex-col h-screen overflow-hidden">
+         <header className="h-[60px] flex items-center justify-between px-6 border-b bg-card shadow-sm no-print">
+            <div className="flex items-center gap-3">
+              <SidebarTrigger className="hidden md:flex text-primary hover:text-accent" /> 
               <h1 className="text-xl font-headline font-semibold text-primary">Insignia Brochure Builder</h1>
             </div>
           </header>

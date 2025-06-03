@@ -19,9 +19,9 @@ export const BrochurePreview: React.FC<BrochurePreviewProps> = ({ content, onDow
   const [viewMode, setViewMode] = useState<'portrait' | 'landscape'>('portrait');
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="p-4 border-b bg-card flex items-center justify-between no-print">
-        <h2 className="text-xl font-headline">Brochure Preview</h2>
+    <div className="flex flex-col h-full bg-muted/20">
+      <div className="p-4 border-b bg-card flex items-center justify-between no-print shadow-sm">
+        <h2 className="text-xl font-headline text-primary">Brochure Preview</h2>
         <div className="flex items-center gap-4">
            <div className="flex items-center space-x-2">
             <Switch
@@ -30,7 +30,7 @@ export const BrochurePreview: React.FC<BrochurePreviewProps> = ({ content, onDow
               onCheckedChange={(checked) => setViewMode(checked ? 'landscape' : 'portrait')}
               aria-label={`Switch to ${viewMode === 'portrait' ? 'landscape' : 'portrait'} view`}
             />
-            <Label htmlFor="view-mode-toggle" className="text-sm">
+            <Label htmlFor="view-mode-toggle" className="text-sm font-medium">
               {viewMode === 'portrait' ? 'Portrait View' : 'Landscape View'}
             </Label>
           </div>
@@ -44,17 +44,17 @@ export const BrochurePreview: React.FC<BrochurePreviewProps> = ({ content, onDow
       </div>
       <div
         id="brochure-preview-area"
-        className={`flex-grow overflow-auto p-4 md:p-8 bg-muted/40 flex ${
+        className={`flex-grow overflow-auto p-6 md:p-10 ${ // Increased padding
           viewMode === 'landscape'
-            ? 'flex-row items-start justify-start'
-            : 'flex-col items-center justify-start' // Changed justify-center to justify-start
+            ? 'flex-row items-start justify-start' // justify-start for horizontal scroll to begin from left
+            : 'flex-col items-center justify-start' 
         }`}
       >
         <div
-            className="shadow-2xl"
+            // Removed shadow-2xl from here as spreads will have their own
             style={{
-                display: 'inline-block', // Added to help parent calculate transformed size
-                transform: viewMode === 'landscape' ? 'scale(0.65)' : 'scale(0.75)', // Reduced scale factors
+                display: 'inline-block', 
+                transform: viewMode === 'landscape' ? 'scale(0.65)' : 'scale(0.8)', // Adjusted scale
                 transformOrigin: viewMode === 'landscape' ? 'top left' : 'top center',
                 transition: 'transform 0.3s ease-out',
             }}
