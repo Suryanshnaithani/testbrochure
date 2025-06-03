@@ -277,19 +277,19 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
 
                   return (
                     <div key={amenity.id} style={parseStyle("background: rgba(255,255,255,0.95); padding: 15px; border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.07); text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; min-height: 150px;")}>
-                        <div style={{ width: '70px', height: '70px', marginBottom: '10px', position: 'relative', overflow:'hidden', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <div style={{ width: '100px', height: '100px', marginBottom: '10px', position: 'relative', overflow:'hidden', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                           {isActualImageSrc(amenity.imageUrl) ? (
                             <Image src={amenity.imageUrl!} alt={amenity.text || "Amenity"} layout="fill" style={{ objectFit: 'cover' }} data-ai-hint={amenity.imageAiHint || 'amenity icon'}/>
                           ) : amenity.icon && (!amenity.imageUrl || isPlaceholderImageSrc(amenity.imageUrl)) ? ( 
-                            <span style={parseStyle("font-size: 42px;")}>{amenity.icon}</span>
+                            <span style={parseStyle("font-size: 52px;")}>{amenity.icon}</span> 
                           ): (
                             <ProfessionalPlaceholder
                                 altText={amenity.text || "Amenity"}
                                 aiHint={amenity.imageAiHint}
                                 className={getImagePrintClass(amenity.imageUrl)}
-                                baseWidth="70px"
-                                baseHeight="70px"
-                                iconSize={28}
+                                baseWidth="100px"
+                                baseHeight="100px"
+                                iconSize={40} 
                             />
                           )}
                         </div>
