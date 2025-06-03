@@ -93,12 +93,12 @@ body {
   }
 }
 
-/* Print styles overhaul */
+/* Print styles overhaul - Aggressive Reset & A4 Definition */
 @media print {
-  /* Hide everything by default, then selectively make printable content visible */
-  body > *:not(#scaled-brochure-wrapper), 
+  /* Hide everything by default */
+  body > *:not(#scaled-brochure-wrapper),
   body > *:not(#scaled-brochure-wrapper) *,
-  header, nav, aside, footer, 
+  header, nav, aside, footer,
   div[data-sidebar="sidebar"], 
   div[role="dialog"], 
   div[data-radix-toast-provider] {
@@ -113,30 +113,33 @@ body {
     box-shadow: none !important;
   }
 
+  /* Define A4 canvas for html and body */
   html, body {
+    display: block !important; /* Override any flex/grid from screen styles */
     visibility: visible !important;
     background: white !important;
     color: black !important;
-    width: auto !important; 
-    height: auto !important; 
+    width: 210mm !important; 
+    height: auto !important; /* Let content flow for multiple pages */
     overflow: visible !important;
-    margin: 0 !important;
+    margin: 0 auto !important; /* Center A4 content on physical paper if paper is larger */
     padding: 0 !important;
     -webkit-print-color-adjust: exact !important;
     color-adjust: exact !important;
   }
 
+  /* Normalize the main brochure wrapper for print */
   #scaled-brochure-wrapper {
     display: block !important;
     visibility: visible !important;
-    transform: none !important;
+    transform: none !important; /* CRITICAL: Remove any screen scaling */
     transform-origin: initial !important;
-    position: relative !important; /* Use relative instead of static for safety with children */
-    width: 210mm !important; 
-    height: auto !important; /* Overall wrapper height determined by content */
-    margin: 0 auto !important; /* Center A4 content on physical paper */
+    position: static !important; /* Simplify positioning context */
+    width: 100% !important; /* Full 210mm from body */
+    height: auto !important; /* Let page content define height */
+    margin: 0 !important;
     padding: 0 !important;
-    overflow: visible !important; 
+    overflow: visible !important;
     background: white !important;
     color: black !important;
     box-shadow: none !important;
@@ -162,18 +165,19 @@ body {
     box-sizing: border-box !important;
   }
   
+  /* Ensure all children within the brochure content are visible and styled for print */
   #scaled-brochure-wrapper *, #brochure-container * {
-     visibility: visible !important; /* Ensure children are visible */
+     visibility: visible !important;
     -webkit-print-color-adjust: exact !important;
     color-adjust: exact !important;
-    color: black !important; /* Force black text for print */
+    color: black !important; /* Force black text for better print readability */
   }
 
-  /* For print, page-spreads become block containers for pages */
+  /* Page spreads become simple block containers in print */
   .page-spread {
     display: block !important; 
-    width: 100% !important; 
-    height: auto !important; /* Height is determined by the pages it contains */
+    width: 100% !important; /* Full 210mm */
+    height: auto !important; /* Height determined by pages within */
     margin: 0 !important;
     padding: 0 !important;
     box-shadow: none !important;
@@ -182,36 +186,36 @@ body {
     -webkit-print-color-adjust: exact !important;
     color-adjust: exact !important;
     box-sizing: border-box !important;
-    page-break-inside: avoid !important; /* Try not to break a spread itself, but its pages can break */
+    page-break-inside: avoid !important; 
   }
   
+  /* Define strict A4 page dimensions and behavior */
   .page {
     display: block !important;
-    width: 100% !important; /* 100% of 210mm from #scaled-brochure-wrapper */
-    height: 297mm !important; 
-    min-height: 297mm !important; /* Ensure it takes full height */
+    width: 100% !important; /* 100% of 210mm */
+    height: 297mm !important; /* Exact A4 height */
+    min-height: 297mm !important; 
     margin: 0 !important; 
     padding: 0 !important;
     box-shadow: none !important;
     border: none !important;
-    overflow: hidden !important; /* CRITICAL: clip content to A4 page boundaries */
-    position: relative !important; /* For absolutely positioned children within the page */
+    overflow: hidden !important; /* CRITICAL: Clip content to A4 page boundaries */
+    position: relative !important; /* Anchor for absolutely positioned children */
     visibility: visible !important;
     background: white !important; 
     -webkit-print-color-adjust: exact !important;
     color-adjust: exact !important;
     box-sizing: border-box !important;
-    page-break-after: always !important;
+    page-break-after: always !important; /* Force page break after each .page */
   }
 
-  /* Last page of the document (whether standalone or inside the last spread) should not force a page break after */
-  /* This selector targets the last .page element that is a direct child of #brochure-container OR the last .page that is a child of the last .page-spread */
+  /* Prevent page break after the very last page */
   #brochure-container > .page:last-of-type,
   #brochure-container > .page-spread:last-of-type > .page:last-of-type {
     page-break-after: avoid !important;
   }
 
-  /* General no-print class for elements that should NEVER print */
+  /* General no-print class (for placeholders, etc.) */
   .no-print, .no-print * {
     display: none !important;
     visibility: hidden !important;
@@ -224,9 +228,9 @@ body {
 
   /* Ensure images print correctly */
   img {
-    max-width: 100% !important; /* Prevent images from overflowing their containers */
+    max-width: 100% !important; 
     height: auto !important;
-    page-break-inside: avoid !important; /* Try to keep images on one page */
+    page-break-inside: avoid !important;
     -webkit-print-color-adjust: exact !important;
     color-adjust: exact !important;
   }
@@ -236,4 +240,3 @@ body {
       transform: none !important;
   }
 }
-
