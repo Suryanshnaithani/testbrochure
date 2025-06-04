@@ -45,15 +45,15 @@ const ProfessionalPlaceholder: React.FC<{
       style={{
         width: baseWidth,
         height: baseHeight,
-        backgroundColor: '#f9fafb',
-        border: '1px dashed #e5e7eb',
-        borderRadius: '8px',
+        backgroundColor: '#f9fafb', // Light gray background
+        border: '1px dashed #e5e7eb', // Dashed border
+        borderRadius: '8px', // Rounded corners
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        color: '#9ca3af',
-        padding: '10px',
+        color: '#9ca3af', // Muted text color
+        padding: '10px', // Padding
         boxSizing: 'border-box',
         overflow: 'hidden',
         textAlign: 'center',
@@ -82,20 +82,57 @@ const ProfessionalPlaceholder: React.FC<{
   );
 };
 
-const MAX_AMENITIES_ON_PAGE3_WITH_MASTERPLAN = 4;
-const MAX_AMENITIES_ON_PAGE3_WITHOUT_MASTERPLAN = 8;
-const FLOORPLANS_PER_PAGE = 3; // Max 3 floor plans per page
+const MAX_AMENITIES_ON_PAGE3_WITH_MASTERPLAN = 4; 
+const MAX_AMENITIES_ON_PAGE3_WITHOUT_MASTERPLAN = 8; 
+const FLOORPLANS_PER_PAGE = 3;
+
+const UniversalDisclaimer: React.FC = () => (
+  <div style={parseStyle("position: absolute; bottom: 0; left: 0; right: 0; background: #374151; color: white; padding: 10px 40px; text-align: center; font-size: 9px; line-height: 1.3; z-index: 10;")}>
+    Disclaimer: This brochure is for illustrative purposes only and does not constitute a legal offering. All specifications, plans, and images are indicative and subject to change by authorities or the developer without prior notice.
+  </div>
+);
+
+const ContactAndLegalInfo: React.FC<{ pageData: BrochureContent['page4'] }> = ({ pageData }) => (
+  <div style={{paddingTop: '20px', flexShrink: 0}}> {/* Ensure this section doesn't cause overflow if page is full */}
+      <div style={parseStyle("background: rgba(255,255,255,0.9); padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-bottom: 15px;")}>
+          <h3 style={parseStyle("font-size: 16px; font-weight: bold; color: #1e40af; margin: 0 0 15px 0; font-family: 'Poppins', sans-serif;")}>{pageData.contactInfoHeading}</h3>
+          <div style={parseStyle("display: grid; grid-template-columns: 1fr 1fr; gap: 20px;")}>
+              <div>
+                  <h4 style={parseStyle("font-size: 13px; font-weight: bold; color: #1e40af; margin: 0 0 8px 0; font-family: 'Poppins', sans-serif;")}>{pageData.contactSalesOfficeTitle}</h4>
+                  <p style={parseStyle("font-size: 12px; color: #475569; line-height: 1.5; margin: 0; white-space: pre-line;")}>
+                      Phone: {pageData.contactSalesOfficePhone || 'N/A'}<br/>
+                      Email: {pageData.contactSalesOfficeEmail || 'N/A'}<br/>
+                      Website: {pageData.contactSalesOfficeWebsite || 'N/A'}
+                  </p>
+              </div>
+              <div>
+                  <h4 style={parseStyle("font-size: 13px; font-weight: bold; color: #1e40af; margin: 0 0 8px 0; font-family: 'Poppins', sans-serif;")}>{pageData.contactSiteOfficeTitle}</h4>
+                  <p style={parseStyle("font-size: 12px; color: #475569; line-height: 1.5; margin: 0; white-space: pre-line;")}>
+                      {pageData.contactSiteOfficeAddress || 'N/A'}<br/>
+                      {pageData.contactSiteOfficeHours || 'N/A'}
+                  </p>
+              </div>
+          </div>
+      </div>
+      <div style={parseStyle("background: #1e40af; color: white; padding: 15px; border-radius: 12px; text-align: center;")}>
+          <h4 style={parseStyle("font-size: 13px; font-weight: bold; margin: 0 0 8px 0; font-family: 'Poppins', sans-serif;")}>{pageData.legalInfoHeading}</h4>
+          <p style={parseStyle("font-size: 11px; margin: 0 0 6px 0;")}>RERA No.: {pageData.legalReraNo || 'N/A'}</p>
+          <p style={parseStyle("font-size: 10px; margin: 0; opacity: 0.9;")}>{pageData.legalReraLinkText || 'N/A'}</p>
+      </div>
+  </div>
+);
+
 
 export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> = ({ content, viewMode }) => {
   const { page1, page2, page3, page4 } = content;
 
   const pageBaseStyle: React.CSSProperties = {
     width: '210mm',
-    minHeight: '297mm',
-    height: '297mm',
+    minHeight: '297mm', 
+    height: '297mm',   
     background: 'white',
     position: 'relative',
-    overflow: 'hidden',
+    overflow: 'hidden', 
     fontFamily: "'PT Sans', Arial, sans-serif",
     color: '#333',
     flexShrink: 0,
@@ -107,25 +144,25 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
   const pageStylePortrait: React.CSSProperties = {
     ...pageBaseStyle,
     boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
-    margin: '0 auto 30px auto',
+    margin: '0 auto 30px auto', 
   };
 
   const pageSpreadStyle: React.CSSProperties = {
-    width: '420mm',
-    height: '297mm',
+    width: '420mm', 
+    height: '297mm', 
     display: 'flex',
     flexDirection: 'row',
     boxShadow: '0 8px 30px rgba(0,0,0,0.1)',
     background: 'white',
-    overflow: 'hidden',
+    overflow: 'hidden', 
     flexShrink: 0,
-    marginBottom: '30px',
+    marginBottom: '30px', 
   };
 
   const pageOnSpreadStyle: React.CSSProperties = {
     ...pageBaseStyle,
-    margin: 0,
-    boxShadow: 'none',
+    margin: 0, 
+    boxShadow: 'none', 
   };
 
   const getImagePrintClass = (imageSrc: string | undefined | null) => {
@@ -198,17 +235,13 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
                 </p>
             </div>
       </div>
-       {/* Universal Disclaimer on all pages */}
-       <div style={parseStyle("position: absolute; bottom: 0; left: 0; right: 0; background: #374151; color: white; padding: 10px 40px; text-align: center; font-size: 9px; line-height: 1.3; z-index: 10;")}>
-            Disclaimer: This brochure is for illustrative purposes only and does not constitute a legal offering. All specifications, plans, and images are indicative and subject to change by authorities or the developer without prior notice.
-       </div>
     </>
   );
 
   const renderPage2Content = () => (
     <>
       <div style={parseStyle("background: #1e40af; color: white; padding: 20px 40px; text-align: center; flex-shrink: 0;")}>
-          <h2 style={parseStyle("font-size: 28px; font-weight: bold; margin: 0; font-family: 'Poppins', sans-serif;")}>Location & Connectivity</h2>
+          <h2 style={parseStyle("font-size: 28px; font-weight: bold; margin: 0; font-family: 'Poppins', sans-serif;")}>Location &amp; Connectivity</h2>
           <p style={parseStyle("font-size: 14px; margin: 5px 0 0 0; opacity: 0.9;")}>Explore the Prime Location</p>
       </div>
 
@@ -262,10 +295,6 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
                 </div>
             </div>
       </div>
-       {/* Universal Disclaimer on all pages */}
-       <div style={parseStyle("position: absolute; bottom: 0; left: 0; right: 0; background: #374151; color: white; padding: 10px 40px; text-align: center; font-size: 9px; line-height: 1.3; z-index: 10;")}>
-            Disclaimer: This brochure is for illustrative purposes only and does not constitute a legal offering. All specifications, plans, and images are indicative and subject to change by authorities or the developer without prior notice.
-       </div>
     </>
   );
 
@@ -279,21 +308,20 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
-      justifyContent: "flex-start", // Align content to the top
-      minHeight: "220px", // Base min height, can be adjusted
+      justifyContent: "flex-start", 
+      minHeight: "220px", 
     };
 
-    let imageContainerSize = '180px'; // Default large size for amenities
+    let imageContainerSize = '180px'; 
 
-    if (itemCount === 1) { // Single amenity takes more space
-      itemStyle.gridColumn = 'span 2'; // Assuming a 2-column grid potential, adjust grid-template-columns accordingly
+    if (itemCount === 1) { 
+      itemStyle.gridColumn = 'span 2'; 
       imageContainerSize = '250px';
     } else if (itemCount === 2) {
        imageContainerSize = '200px';
     } else if (itemCount === 3) {
        imageContainerSize = '180px';
     }
-    // For 4 or more, the default 180px in a grid is fine.
 
 
     const hasContent = amenity.icon || amenity.text || amenity.imageUrl;
@@ -313,7 +341,7 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
                 className={getImagePrintClass(amenity.imageUrl)}
                 baseWidth={imageContainerSize}
                 baseHeight={imageContainerSize}
-                iconSize={Math.max(24, parseInt(imageContainerSize)/3.5)} // Dynamic icon size
+                iconSize={Math.max(24, parseInt(imageContainerSize)/3.5)} 
             />
           )}
         </div>
@@ -321,251 +349,237 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
       </div>
     );
   };
-
-  const renderPage3Content = (amenitiesToDisplay: AmenityItem[], showMasterPlanOnThisPage: boolean) => (
+  
+  const renderPage3Content = (amenitiesToDisplay: AmenityItem[], showMasterPlanOnThisPage: boolean, isOverallLastPage: boolean, noFloorPlans: boolean) => (
     <>
       <div style={parseStyle("background: #1e40af; color: white; padding: 20px 40px; text-align: center; flex-shrink: 0;")}>
-          <h2 style={parseStyle("font-size: 28px; font-weight: bold; margin: 0; font-family: 'Poppins', sans-serif;")}>Amenities {showMasterPlanOnThisPage ? "& Master Plan" : ""}</h2>
+          <h2 style={parseStyle("font-size: 28px; font-weight: bold; margin: 0; font-family: 'Poppins', sans-serif;")}>Amenities {showMasterPlanOnThisPage && page3.masterPlanHeading ? "&amp; Master Plan" : ""}</h2>
           <p style={parseStyle("font-size: 14px; margin: 5px 0 0 0; opacity: 0.9;")}>Facilities for Modern Living</p>
       </div>
 
-      <div style={parseStyle("padding: 30px 40px; box-sizing: border-box; flex-grow: 1; display: flex; flex-direction: column;")}>
-        <div>
-          <h3 style={parseStyle("font-size: 20px; font-weight: bold; color: #1e40af; margin: 0 0 20px 0; font-family: 'Poppins', sans-serif;")}>{page3.amenitiesHeading}</h3>
+      <div style={parseStyle("padding: 30px 40px; box-sizing: border-box; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between;")}>
+        <div> {/* Wrapper for amenities and master plan to allow contact info to be at bottom */}
+          {page3.amenitiesHeading && <h3 style={parseStyle("font-size: 20px; font-weight: bold; color: #1e40af; margin: 0 0 20px 0; font-family: 'Poppins', sans-serif;")}>{page3.amenitiesHeading}</h3>}
           {Array.isArray(amenitiesToDisplay) && amenitiesToDisplay.length > 0 && (
             <div style={parseStyle(`display: grid; grid-template-columns: repeat(auto-fill, minmax(${amenitiesToDisplay.length <= 2 ? '300px' : '200px'}, 1fr)); gap: 25px; margin-bottom: 30px;`)}>
                 {amenitiesToDisplay.map(amenity => renderAmenityItem(amenity, amenitiesToDisplay.length))}
             </div>
           )}
-        </div>
 
-        {showMasterPlanOnThisPage && (
-            <div> {/* Removed marginTop: 'auto' and flexShrink: 0 for natural flow */}
-            <h3 style={parseStyle("font-size: 20px; font-weight: bold; color: #1e40af; margin: 30px 0 20px 0; font-family: 'Poppins', sans-serif;")}>{page3.masterPlanHeading}</h3>
-            <div style={{ width: '100%', height: '380px', position: 'relative', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 15px rgba(0,0,0,0.08)' }}>
-                {isActualImageSrc(page3.masterPlanImage) ? (
-                    <Image src={page3.masterPlanImage!} alt="Master Plan" layout="fill" objectFit="contain" data-ai-hint={page3.masterPlanImageAiHint || 'site layout'} />
-                ) : (
-                <ProfessionalPlaceholder
-                    altText="Master Plan"
-                    aiHint={page3.masterPlanImageAiHint}
-                    className={getImagePrintClass(page3.masterPlanImage)}
-                    baseHeight="380px"
-                    iconSize={70}
-                />
-                )}
-            </div>
-            </div>
-        )}
+          {showMasterPlanOnThisPage && page3.masterPlanHeading && (
+              <div style={{ flexShrink: 0 }}> 
+              <h3 style={parseStyle("font-size: 20px; font-weight: bold; color: #1e40af; margin: 30px 0 20px 0; font-family: 'Poppins', sans-serif;")}>{page3.masterPlanHeading}</h3>
+              <div style={{ width: '100%', maxHeight: '380px', minHeight: '200px', height: 'auto', position: 'relative', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 15px rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {isActualImageSrc(page3.masterPlanImage) ? (
+                      <Image src={page3.masterPlanImage!} alt="Master Plan" layout="fill" objectFit="contain" data-ai-hint={page3.masterPlanImageAiHint || 'site layout'} />
+                  ) : (
+                  <ProfessionalPlaceholder
+                      altText="Master Plan"
+                      aiHint={page3.masterPlanImageAiHint}
+                      className={getImagePrintClass(page3.masterPlanImage)}
+                      baseWidth="100%" 
+                      baseHeight="100%" 
+                      iconSize={70}
+                  />
+                  )}
+              </div>
+              </div>
+          )}
+        </div>
+        {isOverallLastPage && noFloorPlans && <ContactAndLegalInfo pageData={page4} />}
       </div>
-       {/* Universal Disclaimer on all pages */}
-       <div style={parseStyle("position: absolute; bottom: 0; left: 0; right: 0; background: #374151; color: white; padding: 10px 40px; text-align: center; font-size: 9px; line-height: 1.3; z-index: 10;")}>
-            Disclaimer: This brochure is for illustrative purposes only and does not constitute a legal offering. All specifications, plans, and images are indicative and subject to change by authorities or the developer without prior notice.
-       </div>
     </>
   );
 
-  const renderOverflowPageContent = (overflowAmenities: AmenityItem[], showMasterPlanOnThisPage: boolean) => (
+  const renderOverflowPageContent = (overflowAmenities: AmenityItem[], showMasterPlanOnThisPage: boolean, isOverallLastPage: boolean, noFloorPlans: boolean) => (
     <>
       <div style={parseStyle("background: #1e40af; color: white; padding: 20px 40px; text-align: center; flex-shrink: 0;")}>
-          <h2 style={parseStyle("font-size: 28px; font-weight: bold; margin: 0; font-family: 'Poppins', sans-serif;")}>More Amenities {showMasterPlanOnThisPage ? "& Master Plan" : ""}</h2>
+          <h2 style={parseStyle("font-size: 28px; font-weight: bold; margin: 0; font-family: 'Poppins', sans-serif;")}>More Amenities {showMasterPlanOnThisPage && page3.masterPlanHeading ? "&amp; Master Plan" : ""}</h2>
           <p style={parseStyle("font-size: 14px; margin: 5px 0 0 0; opacity: 0.9;")}>Continued</p>
       </div>
-       <div style={parseStyle("padding: 30px 40px; box-sizing: border-box; flex-grow: 1; display: flex; flex-direction: column;")}>
-        {Array.isArray(overflowAmenities) && overflowAmenities.length > 0 && (
-            <div>
-                <h3 style={parseStyle("font-size: 20px; font-weight: bold; color: #1e40af; margin: 0 0 20px 0; font-family: 'Poppins', sans-serif;")}>Additional Amenities</h3>
-                <div style={parseStyle(`display: grid; grid-template-columns: repeat(auto-fill, minmax(${overflowAmenities.length <= 2 ? '300px' : '200px'}, 1fr)); gap: 25px; margin-bottom: 30px;`)}>
-                    {overflowAmenities.map(amenity => renderAmenityItem(amenity, overflowAmenities.length))}
-                </div>
-            </div>
-        )}
-        {showMasterPlanOnThisPage && (
-             <div> {/* Removed marginTop: 'auto' and flexShrink: 0 for natural flow */}
-                <h3 style={parseStyle("font-size: 20px; font-weight: bold; color: #1e40af; margin: 30px 0 20px 0; font-family: 'Poppins', sans-serif;")}>{page3.masterPlanHeading}</h3>
-                <div style={{ width: '100%', height: '380px', position: 'relative', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 15px rgba(0,0,0,0.08)' }}>
-                {isActualImageSrc(page3.masterPlanImage) ? (
-                    <Image src={page3.masterPlanImage!} alt="Master Plan" layout="fill" objectFit="contain" data-ai-hint={page3.masterPlanImageAiHint || 'site layout'} />
-                ) : (
-                    <ProfessionalPlaceholder
-                        altText="Master Plan"
-                        aiHint={page3.masterPlanImageAiHint}
-                        className={getImagePrintClass(page3.masterPlanImage)}
-                        baseHeight="380px"
-                        iconSize={70}
-                    />
-                )}
-                </div>
-            </div>
-        )}
+       <div style={parseStyle("padding: 30px 40px; box-sizing: border-box; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between;")}>
+        <div> {/* Wrapper for amenities and master plan */}
+          {Array.isArray(overflowAmenities) && overflowAmenities.length > 0 && (
+              <div>
+                  <h3 style={parseStyle("font-size: 20px; font-weight: bold; color: #1e40af; margin: 0 0 20px 0; font-family: 'Poppins', sans-serif;")}>Additional Amenities</h3>
+                  <div style={parseStyle(`display: grid; grid-template-columns: repeat(auto-fill, minmax(${overflowAmenities.length <= 2 ? '300px' : '200px'}, 1fr)); gap: 25px; margin-bottom: 30px;`)}>
+                      {overflowAmenities.map(amenity => renderAmenityItem(amenity, overflowAmenities.length))}
+                  </div>
+              </div>
+          )}
+          {showMasterPlanOnThisPage && page3.masterPlanHeading && (
+              <div style={{ flexShrink: 0 }}>
+                  <h3 style={parseStyle("font-size: 20px; font-weight: bold; color: #1e40af; margin: 30px 0 20px 0; font-family: 'Poppins', sans-serif;")}>{page3.masterPlanHeading}</h3>
+                  <div style={{ width: '100%', maxHeight: '380px', minHeight: '200px', height: 'auto', position: 'relative', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 15px rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {isActualImageSrc(page3.masterPlanImage) ? (
+                      <Image src={page3.masterPlanImage!} alt="Master Plan" layout="fill" objectFit="contain" data-ai-hint={page3.masterPlanImageAiHint || 'site layout'} />
+                  ) : (
+                      <ProfessionalPlaceholder
+                          altText="Master Plan"
+                          aiHint={page3.masterPlanImageAiHint}
+                          className={getImagePrintClass(page3.masterPlanImage)}
+                          baseWidth="100%"
+                          baseHeight="100%"
+                          iconSize={70}
+                      />
+                  )}
+                  </div>
+              </div>
+          )}
+        </div>
+        {isOverallLastPage && noFloorPlans && <ContactAndLegalInfo pageData={page4} />}
       </div>
-       {/* Universal Disclaimer on all pages */}
-       <div style={parseStyle("position: absolute; bottom: 0; left: 0; right: 0; background: #374151; color: white; padding: 10px 40px; text-align: center; font-size: 9px; line-height: 1.3; z-index: 10;")}>
-            Disclaimer: This brochure is for illustrative purposes only and does not constitute a legal offering. All specifications, plans, and images are indicative and subject to change by authorities or the developer without prior notice.
-       </div>
     </>
   );
 
-
-  const renderFloorPlanPageContent = (floorPlansToShow: FloorPlanItem[], isLastFloorPlanPage: boolean) => (
+  const renderFloorPlanPageContent = (floorPlansToShow: FloorPlanItem[], isLastFloorPlanPageChunk: boolean) => (
     <>
       <div style={parseStyle("background: #1e40af; color: white; padding: 20px 40px; text-align: center; flex-shrink: 0;")}>
-          <h2 style={parseStyle("font-size: 28px; font-weight: bold; margin: 0; font-family: 'Poppins', sans-serif;")}>{page4.floorPlanHeading}</h2>
-          <p style={parseStyle("font-size: 14px; margin: 5px 0 0 0; opacity: 0.9;")}>Detailed Unit Layouts</p>
+          <h2 style={parseStyle("font-size: 28px; font-weight: bold; margin: 0; font-family: 'Poppins', sans-serif;")}>{page4.floorPlanHeading || "Floor Plans"}</h2>
+          {page4.floorPlanHeading && <p style={parseStyle("font-size: 14px; margin: 5px 0 0 0; opacity: 0.9;")}>Detailed Unit Layouts</p>}
       </div>
 
-      <div style={parseStyle("padding: 25px 40px; box-sizing: border-box; flex-grow: 1; display:flex; flex-direction: column;")}>
-        {floorPlansToShow.map((fp, index) => (
-             <div key={fp.id} style={parseStyle(`display: flex; flex-direction: column; gap: 15px; margin-bottom: ${index === floorPlansToShow.length -1 ? '0px' : '25px'}; padding-bottom: ${index === floorPlansToShow.length -1 ? '0px' : '25px'}; border-bottom: ${index === floorPlansToShow.length -1 ? 'none' : '1px solid #eee'}; flex-grow:1; justify-content: space-between; min-height: ${100 / Math.min(floorPlansToShow.length, FLOORPLANS_PER_PAGE) - (floorPlansToShow.length > 1 ? 5 : 0)}%;`)}>
-                <div style={parseStyle("display: flex; gap: 25px; flex-grow: 1;")}>
-                    <div style={{ flex: 1.3, minHeight: '300px', position: 'relative', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 15px rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        {isActualImageSrc(fp.floorPlanImage) ? (
-                        <Image src={fp.floorPlanImage!} alt={fp.name || `Floor Plan`} layout="fill" objectFit="contain" data-ai-hint={fp.floorPlanImageAiHint || 'floor plan design'}/>
-                        ) : (
-                        <ProfessionalPlaceholder
-                            altText={fp.name || "Floor Plan"}
-                            aiHint={fp.floorPlanImageAiHint}
-                            className={getImagePrintClass(fp.floorPlanImage)}
-                            baseHeight="100%"
-                            baseWidth="100%"
-                            iconSize={60}
-                        />
-                        )}
-                    </div>
+      <div style={parseStyle("padding: 25px 40px; box-sizing: border-box; flex-grow: 1; display:flex; flex-direction: column; justify-content: space-between;")}>
+        <div> {/* Wrapper for floor plans */}
+          {floorPlansToShow.map((fp, index) => (
+              <div key={fp.id} style={parseStyle(`display: flex; flex-direction: column; gap: 15px; margin-bottom: ${index === floorPlansToShow.length -1 && !isLastFloorPlanPageChunk ? '25px' : '0px'}; padding-bottom: ${index === floorPlansToShow.length -1 && !isLastFloorPlanPageChunk ? '25px' : '0px'}; border-bottom: ${index === floorPlansToShow.length -1 && !isLastFloorPlanPageChunk ? '1px solid #eee' : 'none'}; flex-grow:1; justify-content: space-between; min-height: ${100 / Math.min(floorPlansToShow.length, FLOORPLANS_PER_PAGE) - (floorPlansToShow.length > 1 ? 5 : 0)}%;`)}>
+                  <div style={parseStyle("display: flex; gap: 25px; flex-grow: 1;")}>
+                      <div style={{ flex: 1.3, minHeight: '300px', position: 'relative', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 15px rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          {isActualImageSrc(fp.floorPlanImage) ? (
+                          <Image src={fp.floorPlanImage!} alt={fp.name || `Floor Plan`} layout="fill" objectFit="contain" data-ai-hint={fp.floorPlanImageAiHint || 'floor plan design'}/>
+                          ) : (
+                          <ProfessionalPlaceholder
+                              altText={fp.name || "Floor Plan"}
+                              aiHint={fp.floorPlanImageAiHint}
+                              className={getImagePrintClass(fp.floorPlanImage)}
+                              baseHeight="100%"
+                              baseWidth="100%"
+                              iconSize={60}
+                          />
+                          )}
+                      </div>
 
-                    <div style={parseStyle("flex: 1; display: flex; flex-direction: column;")}>
-                        <div style={parseStyle("background: rgba(255,255,255,0.9); padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); height: 100%; overflow-y: auto;")}>
-                            <h4 style={parseStyle("font-size: 18px; font-weight: bold; color: #1e40af; margin: 0 0 12px 0; font-family: 'Poppins', sans-serif;")}>{fp.name}</h4>
-                            <h5 style={parseStyle("font-size: 15px; font-weight: bold; color: #1e40af; margin: 0 0 10px 0; font-family: 'Poppins', sans-serif;")}>{fp.specsHeading}</h5>
-                            <div style={parseStyle("font-size: 13px; color: #475569; line-height: 1.6;")}>
-                                <p style={parseStyle("margin: 0 0 8px 0;")}><strong style={{fontWeight: 600}}>Carpet Area:</strong> {fp.specsCarpetArea}</p>
-                                <p style={parseStyle("margin: 0 0 8px 0;")}><strong style={{fontWeight: 600}}>Built-up Area:</strong> {fp.specsBuiltUpArea}</p>
-                                <p style={parseStyle("margin: 0 0 8px 0;")}><strong style={{fontWeight: 600}}>Balcony:</strong> {fp.specsBalconyArea}</p>
-                                <p style={parseStyle("margin: 0 0 12px 0;")}><strong style={{fontWeight: 600}}>Configuration:</strong> {fp.specsConfiguration}</p>
-                                <h5 style={parseStyle("font-size: 14px; font-weight: bold; color: #1e40af; margin: 10px 0 6px 0; font-family: 'Poppins', sans-serif;")}>{fp.specsFeaturesTitle}</h5>
-                                {fp.specsFeaturesItems && Array.isArray(fp.specsFeaturesItems) && fp.specsFeaturesItems.length > 0 && (
-                                <ul style={parseStyle("margin: 0; padding-left: 16px; font-size: 12px;")}>
-                                    {fp.specsFeaturesItems.map((item, idx) => item && <li key={idx} style={{marginBottom: '4px'}}>{item}</li>)}
-                                </ul>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        ))}
-        {isLastFloorPlanPage && (
-            <div style={{marginTop: 'auto', paddingTop: '20px', flexShrink: 0}}> {/* Contact and Legal info at the bottom of the last floor plan page */}
-                <div style={parseStyle("background: rgba(255,255,255,0.9); padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-bottom: 15px;")}>
-                    <h3 style={parseStyle("font-size: 16px; font-weight: bold; color: #1e40af; margin: 0 0 15px 0; font-family: 'Poppins', sans-serif;")}>{page4.contactInfoHeading}</h3>
-                    <div style={parseStyle("display: grid; grid-template-columns: 1fr 1fr; gap: 20px;")}>
-                        <div>
-                            <h4 style={parseStyle("font-size: 13px; font-weight: bold; color: #1e40af; margin: 0 0 8px 0; font-family: 'Poppins', sans-serif;")}>{page4.contactSalesOfficeTitle}</h4>
-                            <p style={parseStyle("font-size: 12px; color: #475569; line-height: 1.5; margin: 0; white-space: pre-line;")}>
-                                Phone: {page4.contactSalesOfficePhone || 'N/A'}<br/>
-                                Email: {page4.contactSalesOfficeEmail || 'N/A'}<br/>
-                                Website: {page4.contactSalesOfficeWebsite || 'N/A'}
-                            </p>
-                        </div>
-                        <div>
-                            <h4 style={parseStyle("font-size: 13px; font-weight: bold; color: #1e40af; margin: 0 0 8px 0; font-family: 'Poppins', sans-serif;")}>{page4.contactSiteOfficeTitle}</h4>
-                            <p style={parseStyle("font-size: 12px; color: #475569; line-height: 1.5; margin: 0; white-space: pre-line;")}>
-                                {page4.contactSiteOfficeAddress || 'N/A'}<br/>
-                                {page4.contactSiteOfficeHours || 'N/A'}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div style={parseStyle("background: #1e40af; color: white; padding: 15px; border-radius: 12px; text-align: center;")}>
-                    <h4 style={parseStyle("font-size: 13px; font-weight: bold; margin: 0 0 8px 0; font-family: 'Poppins', sans-serif;")}>{page4.legalInfoHeading}</h4>
-                    <p style={parseStyle("font-size: 11px; margin: 0 0 6px 0;")}>RERA No.: {page4.legalReraNo || 'N/A'}</p>
-                    <p style={parseStyle("font-size: 10px; margin: 0; opacity: 0.9;")}>{page4.legalReraLinkText || 'N/A'}</p>
-                </div>
-            </div>
-        )}
+                      <div style={parseStyle("flex: 1; display: flex; flex-direction: column;")}>
+                          <div style={parseStyle("background: rgba(255,255,255,0.9); padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); height: 100%; overflow-y: auto;")}>
+                              <h4 style={parseStyle("font-size: 18px; font-weight: bold; color: #1e40af; margin: 0 0 12px 0; font-family: 'Poppins', sans-serif;")}>{fp.name}</h4>
+                              {fp.specsHeading && <h5 style={parseStyle("font-size: 15px; font-weight: bold; color: #1e40af; margin: 0 0 10px 0; font-family: 'Poppins', sans-serif;")}>{fp.specsHeading}</h5>}
+                              <div style={parseStyle("font-size: 13px; color: #475569; line-height: 1.6;")}>
+                                  {fp.specsCarpetArea && <p style={parseStyle("margin: 0 0 8px 0;")}><strong style={{fontWeight: 600}}>Carpet Area:</strong> {fp.specsCarpetArea}</p>}
+                                  {fp.specsBuiltUpArea && <p style={parseStyle("margin: 0 0 8px 0;")}><strong style={{fontWeight: 600}}>Built-up Area:</strong> {fp.specsBuiltUpArea}</p>}
+                                  {fp.specsBalconyArea && <p style={parseStyle("margin: 0 0 8px 0;")}><strong style={{fontWeight: 600}}>Balcony:</strong> {fp.specsBalconyArea}</p>}
+                                  {fp.specsConfiguration && <p style={parseStyle("margin: 0 0 12px 0;")}><strong style={{fontWeight: 600}}>Configuration:</strong> {fp.specsConfiguration}</p>}
+                                  {fp.specsFeaturesTitle && <h5 style={parseStyle("font-size: 14px; font-weight: bold; color: #1e40af; margin: 10px 0 6px 0; font-family: 'Poppins', sans-serif;")}>{fp.specsFeaturesTitle}</h5>}
+                                  {fp.specsFeaturesItems && Array.isArray(fp.specsFeaturesItems) && fp.specsFeaturesItems.length > 0 && (
+                                  <ul style={parseStyle("margin: 0; padding-left: 16px; font-size: 12px;")}>
+                                      {fp.specsFeaturesItems.map((item, idx) => item && <li key={idx} style={{marginBottom: '4px'}}>{item}</li>)}
+                                  </ul>
+                                  )}
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          ))}
+        </div>
+        {isLastFloorPlanPageChunk && (page4.contactInfoHeading || page4.legalInfoHeading) && <ContactAndLegalInfo pageData={page4} />}
       </div>
-       {/* Universal Disclaimer on all pages */}
-       <div style={parseStyle("position: absolute; bottom: 0; left: 0; right: 0; background: #374151; color: white; padding: 10px 40px; text-align: center; font-size: 9px; line-height: 1.3; z-index: 10;")}>
-            Disclaimer: This brochure is for illustrative purposes only and does not constitute a legal offering. All specifications, plans, and images are indicative and subject to change by authorities or the developer without prior notice.
-       </div>
     </>
   );
 
   // --- Page generation logic ---
-  const pages = [];
-
-  // Page 1
-  pages.push(
-    <div key="page-1" className="page" style={viewMode === 'landscape' ? pageOnSpreadStyle : pageStylePortrait}>
-      {renderPage1Content()}
-    </div>
-  );
-
-  // Page 2
-  pages.push(
-    <div key="page-2" className="page" style={viewMode === 'landscape' ? pageOnSpreadStyle : pageStylePortrait}>
-      {renderPage2Content()}
-    </div>
-  );
-
+  const pageStructure: Array<{type: string, data?: any}> = [];
+  
+  pageStructure.push({type: 'page1'});
+  pageStructure.push({type: 'page2'});
+  
   const allAmenities = page3.amenities || [];
-  let amenitiesForPage3: AmenityItem[] = [];
-  let amenitiesForOverflowPage: AmenityItem[] = [];
-  let masterPlanStaysOnPage3 = true;
-  let masterPlanGoesToOverflowPage = false;
-
-  if (allAmenities.length > MAX_AMENITIES_ON_PAGE3_WITH_MASTERPLAN) {
-    masterPlanStaysOnPage3 = false;
-    masterPlanGoesToOverflowPage = true;
-    amenitiesForPage3 = allAmenities.slice(0, MAX_AMENITIES_ON_PAGE3_WITHOUT_MASTERPLAN);
-    amenitiesForOverflowPage = allAmenities.slice(MAX_AMENITIES_ON_PAGE3_WITHOUT_MASTERPLAN);
-  } else {
-    amenitiesForPage3 = allAmenities;
-  }
-
-  pages.push(
-    <div key="page-3" className="page" style={viewMode === 'landscape' ? pageOnSpreadStyle : pageStylePortrait}>
-      {renderPage3Content(amenitiesForPage3, masterPlanStaysOnPage3)}
-    </div>
-  );
-
-  if (amenitiesForOverflowPage.length > 0 || masterPlanGoesToOverflowPage) {
-    pages.push(
-      <div key="page-overflow-amenities" className="page" style={viewMode === 'landscape' ? pageOnSpreadStyle : pageStylePortrait}>
-        {renderOverflowPageContent(amenitiesForOverflowPage, masterPlanGoesToOverflowPage)}
-      </div>
-    );
-  }
-
-  // Floor Plan Pages
   const allFloorPlans = Array.isArray(page4.floorPlans) ? page4.floorPlans : [];
-  if (allFloorPlans.length > 0) {
-      for (let i = 0; i < allFloorPlans.length; i += FLOORPLANS_PER_PAGE) {
-        const floorPlanChunk = allFloorPlans.slice(i, i + FLOORPLANS_PER_PAGE);
-        const isLastFpPageChunk = (i + FLOORPLANS_PER_PAGE) >= allFloorPlans.length;
-        pages.push(
-          <div key={`page-fp-${i / FLOORPLANS_PER_PAGE}`} className="page" style={viewMode === 'landscape' ? pageOnSpreadStyle : pageStylePortrait}>
-            {renderFloorPlanPageContent(floorPlanChunk, isLastFpPageChunk)}
-          </div>
-        );
+  
+  let masterPlanInitiallyOnPage3 = true;
+  if (!page3.masterPlanHeading && !page3.masterPlanImage) { // No master plan content at all
+      masterPlanInitiallyOnPage3 = false;
+  }
+
+  let amenitiesForPage3: AmenityItem[];
+  let amenitiesForOverflow: AmenityItem[] = [];
+  let showMasterPlanOnPage3 = masterPlanInitiallyOnPage3;
+  let showMasterPlanOnOverflow = false;
+
+  if (masterPlanInitiallyOnPage3) {
+      if (allAmenities.length > MAX_AMENITIES_ON_PAGE3_WITH_MASTERPLAN) {
+          amenitiesForPage3 = allAmenities.slice(0, MAX_AMENITIES_ON_PAGE3_WITHOUT_MASTERPLAN);
+          amenitiesForOverflow = allAmenities.slice(MAX_AMENITIES_ON_PAGE3_WITHOUT_MASTERPLAN);
+          showMasterPlanOnPage3 = false;
+          showMasterPlanOnOverflow = true;
+      } else {
+          amenitiesForPage3 = allAmenities;
       }
-  } else { // Render a fallback page if no floor plans exist, ensuring contact/legal info is still shown.
-    pages.push(
-        <div key="page-fp-fallback" className="page" style={viewMode === 'landscape' ? pageOnSpreadStyle : pageStylePortrait}>
-            {renderFloorPlanPageContent([], true)}
+  } else { // Master plan is not shown initially on page 3 (either no content or already too many amenities)
+      amenitiesForPage3 = allAmenities.slice(0, MAX_AMENITIES_ON_PAGE3_WITHOUT_MASTERPLAN);
+      amenitiesForOverflow = allAmenities.slice(MAX_AMENITIES_ON_PAGE3_WITHOUT_MASTERPLAN);
+      // If master plan had content, it should go to overflow if not on page3
+      showMasterPlanOnOverflow = masterPlanInitiallyOnPage3; 
+  }
+  
+  pageStructure.push({type: 'page3', data: {amenities: amenitiesForPage3, showMasterPlan: showMasterPlanOnPage3}});
+
+  const needsOverflowPage = amenitiesForOverflow.length > 0 || showMasterPlanOnOverflow;
+  if (needsOverflowPage) {
+      pageStructure.push({type: 'overflowAmenity', data: {amenities: amenitiesForOverflow, showMasterPlan: showMasterPlanOnOverflow}});
+  }
+
+  if (allFloorPlans.length > 0) {
+    for (let i = 0; i < allFloorPlans.length; i += FLOORPLANS_PER_PAGE) {
+        const floorPlanChunk = allFloorPlans.slice(i, i + FLOORPLANS_PER_PAGE);
+        const isLastChunk = (i + FLOORPLANS_PER_PAGE) >= allFloorPlans.length;
+        pageStructure.push({type: 'floorPlan', data: {plans: floorPlanChunk, isLastChunk: isLastChunk}});
+    }
+  } else if (page4.contactInfoHeading || page4.legalInfoHeading) { 
+    // If no floor plans, but contact/legal info needs to be shown on its own "final" page segment.
+    pageStructure.push({type: 'floorPlan', data: {plans: [], isLastChunk: true}});
+  }
+  
+  const totalPageCount = pageStructure.length;
+  const pageElements: JSX.Element[] = pageStructure.map((pageDef, index) => {
+    const isOverallLastPage = index === totalPageCount - 1;
+    let pageContent: React.ReactNode;
+
+    switch(pageDef.type) {
+        case 'page1':
+            pageContent = renderPage1Content();
+            break;
+        case 'page2':
+            pageContent = renderPage2Content();
+            break;
+        case 'page3':
+            pageContent = renderPage3Content(pageDef.data.amenities, pageDef.data.showMasterPlan, isOverallLastPage, allFloorPlans.length === 0 && !needsOverflowPage);
+            break;
+        case 'overflowAmenity':
+            pageContent = renderOverflowPageContent(pageDef.data.amenities, pageDef.data.showMasterPlan, isOverallLastPage, allFloorPlans.length === 0);
+            break;
+        case 'floorPlan':
+            pageContent = renderFloorPlanPageContent(pageDef.data.plans, pageDef.data.isLastChunk);
+            break;
+        default:
+            pageContent = null;
+    }
+
+    return (
+        <div key={`page-${index}`} className="page" style={viewMode === 'landscape' ? pageOnSpreadStyle : pageStylePortrait}>
+            {pageContent}
+            {isOverallLastPage && <UniversalDisclaimer />}
         </div>
     );
-  }
+  });
 
 
   if (viewMode === 'landscape') {
-    const landscapePages = [];
-    for (let i = 0; i < pages.length; i += 2) {
-      landscapePages.push(
+    const landscapeSpreads = [];
+    for (let i = 0; i < pageElements.length; i += 2) {
+      landscapeSpreads.push(
         <div key={`spread-${i/2}`} className="page-spread" style={pageSpreadStyle}>
-          {pages[i]}
-          {pages[i+1] ? React.cloneElement(pages[i+1], {style: {...pageOnSpreadStyle, borderLeft: '1px solid #e0e0e0'}}) : <div className="page" style={pageOnSpreadStyle}></div>}
+          {pageElements[i]}
+          {pageElements[i+1] ? React.cloneElement(pageElements[i+1], {style: {...pageOnSpreadStyle, borderLeft: '1px solid #e0e0e0'}}) : <div className="page" style={pageOnSpreadStyle}></div>}
         </div>
       );
     }
@@ -574,30 +588,30 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
         id="brochure-container"
         style={{
           display: 'flex',
-          flexDirection: 'row',
-          gap: '30px',
-          padding: '20px',
-          alignItems: 'flex-start',
-          overflowX: 'auto',
-          width: 'max-content',
+          flexDirection: 'row', 
+          gap: '30px', 
+          padding: '20px', 
+          alignItems: 'flex-start', 
+          overflowX: 'auto', 
+          width: 'max-content', 
         }}
       >
-        {landscapePages}
+        {landscapeSpreads}
       </div>
     );
   }
 
   return (
     <div
-      id="brochure-container"
+      id="brochure-container" 
       style={{
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center',
-        padding: '20px 0',
+        alignItems: 'center', 
+        padding: '20px 0', 
       }}
     >
-      {pages}
+      {pageElements}
     </div>
   );
 };
