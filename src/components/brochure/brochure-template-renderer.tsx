@@ -82,18 +82,27 @@ const ProfessionalPlaceholder: React.FC<{
   );
 };
 
-const MAX_AMENITIES_ON_PAGE3_WITH_MASTERPLAN = 4; 
-const MAX_AMENITIES_ON_PAGE3_WITHOUT_MASTERPLAN = 8; 
+const MAX_AMENITIES_ON_PAGE3_WITH_MASTERPLAN = 4;
+const MAX_AMENITIES_ON_PAGE3_WITHOUT_MASTERPLAN = 8;
 const FLOORPLANS_PER_PAGE = 3;
 
 const UniversalDisclaimer: React.FC = () => (
-  <div style={parseStyle("position: absolute; bottom: 0; left: 0; right: 0; background: #374151; color: white; padding: 10px 40px; text-align: center; font-size: 9px; line-height: 1.3; z-index: 10;")}>
+  <div style={{
+    background: '#374151',
+    color: 'white',
+    padding: '10px 40px',
+    textAlign: 'center',
+    fontSize: '9px',
+    lineHeight: '1.3',
+    zIndex: 10,
+    flexShrink: 0, // Ensure it doesn't shrink if page content is sparse
+  }}>
     Disclaimer: This brochure is for illustrative purposes only and does not constitute a legal offering. All specifications, plans, and images are indicative and subject to change by authorities or the developer without prior notice.
   </div>
 );
 
 const ContactAndLegalInfo: React.FC<{ pageData: BrochureContent['page4'] }> = ({ pageData }) => (
-  <div style={{paddingTop: '20px', flexShrink: 0}}> {/* Ensure this section doesn't cause overflow if page is full */}
+  <div style={{paddingTop: '20px', flexShrink: 0, marginTop: 'auto' /* Pushes to bottom if content above is short */}}>
       <div style={parseStyle("background: rgba(255,255,255,0.9); padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-bottom: 15px;")}>
           <h3 style={parseStyle("font-size: 16px; font-weight: bold; color: #1e40af; margin: 0 0 15px 0; font-family: 'Poppins', sans-serif;")}>{pageData.contactInfoHeading}</h3>
           <div style={parseStyle("display: grid; grid-template-columns: 1fr 1fr; gap: 20px;")}>
@@ -128,11 +137,11 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
 
   const pageBaseStyle: React.CSSProperties = {
     width: '210mm',
-    minHeight: '297mm', 
-    height: '297mm',   
+    minHeight: '297mm',
+    height: '297mm',
     background: 'white',
     position: 'relative',
-    overflow: 'hidden', 
+    overflow: 'hidden',
     fontFamily: "'PT Sans', Arial, sans-serif",
     color: '#333',
     flexShrink: 0,
@@ -144,25 +153,25 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
   const pageStylePortrait: React.CSSProperties = {
     ...pageBaseStyle,
     boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
-    margin: '0 auto 30px auto', 
+    margin: '0 auto 30px auto',
   };
 
   const pageSpreadStyle: React.CSSProperties = {
-    width: '420mm', 
-    height: '297mm', 
+    width: '420mm',
+    height: '297mm',
     display: 'flex',
     flexDirection: 'row',
     boxShadow: '0 8px 30px rgba(0,0,0,0.1)',
     background: 'white',
-    overflow: 'hidden', 
+    overflow: 'hidden',
     flexShrink: 0,
-    marginBottom: '30px', 
+    marginBottom: '30px',
   };
 
   const pageOnSpreadStyle: React.CSSProperties = {
     ...pageBaseStyle,
-    margin: 0, 
-    boxShadow: 'none', 
+    margin: 0,
+    boxShadow: 'none',
   };
 
   const getImagePrintClass = (imageSrc: string | undefined | null) => {
@@ -308,18 +317,18 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
-      justifyContent: "flex-start", 
-      minHeight: "220px", 
+      justifyContent: "flex-start",
+      minHeight: "220px", // Default min height
     };
 
-    let imageContainerSize = '180px'; 
+    let imageContainerSize = '180px'; // Default substantial size
 
-    if (itemCount === 1) { 
-      itemStyle.gridColumn = 'span 2'; 
-      imageContainerSize = '250px';
+    if (itemCount === 1) {
+      itemStyle.gridColumn = 'span 2'; // Make it span two columns if it's the only one in a 2-column grid
+      imageContainerSize = '250px'; // Larger image for single item
     } else if (itemCount === 2) {
        imageContainerSize = '200px';
-    } else if (itemCount === 3) {
+    } else if (itemCount >= 3) { // For 3 or 4 items, 180px is good
        imageContainerSize = '180px';
     }
 
@@ -341,7 +350,7 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
                 className={getImagePrintClass(amenity.imageUrl)}
                 baseWidth={imageContainerSize}
                 baseHeight={imageContainerSize}
-                iconSize={Math.max(24, parseInt(imageContainerSize)/3.5)} 
+                iconSize={Math.max(24, parseInt(imageContainerSize)/3.5)}
             />
           )}
         </div>
@@ -349,16 +358,16 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
       </div>
     );
   };
-  
+
   const renderPage3Content = (amenitiesToDisplay: AmenityItem[], showMasterPlanOnThisPage: boolean, isOverallLastPage: boolean, noFloorPlans: boolean) => (
     <>
       <div style={parseStyle("background: #1e40af; color: white; padding: 20px 40px; text-align: center; flex-shrink: 0;")}>
-          <h2 style={parseStyle("font-size: 28px; font-weight: bold; margin: 0; font-family: 'Poppins', sans-serif;")}>Amenities {showMasterPlanOnThisPage && page3.masterPlanHeading ? "&amp; Master Plan" : ""}</h2>
+          <h2 style={parseStyle("font-size: 28px; font-weight: bold; margin: 0; font-family: 'Poppins', sans-serif;")}>Amenities {showMasterPlanOnThisPage && page3.masterPlanHeading ? "& Master Plan" : ""}</h2>
           <p style={parseStyle("font-size: 14px; margin: 5px 0 0 0; opacity: 0.9;")}>Facilities for Modern Living</p>
       </div>
 
-      <div style={parseStyle("padding: 30px 40px; box-sizing: border-box; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between;")}>
-        <div> {/* Wrapper for amenities and master plan to allow contact info to be at bottom */}
+      <div style={parseStyle("padding: 30px 40px; box-sizing: border-box; flex-grow: 1; display: flex; flex-direction: column;")}>
+        <div> {/* Wrapper for amenities and master plan to allow content to flow naturally */}
           {page3.amenitiesHeading && <h3 style={parseStyle("font-size: 20px; font-weight: bold; color: #1e40af; margin: 0 0 20px 0; font-family: 'Poppins', sans-serif;")}>{page3.amenitiesHeading}</h3>}
           {Array.isArray(amenitiesToDisplay) && amenitiesToDisplay.length > 0 && (
             <div style={parseStyle(`display: grid; grid-template-columns: repeat(auto-fill, minmax(${amenitiesToDisplay.length <= 2 ? '300px' : '200px'}, 1fr)); gap: 25px; margin-bottom: 30px;`)}>
@@ -367,7 +376,7 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
           )}
 
           {showMasterPlanOnThisPage && page3.masterPlanHeading && (
-              <div style={{ flexShrink: 0 }}> 
+              <div style={{ flexShrink: 0 }}>
               <h3 style={parseStyle("font-size: 20px; font-weight: bold; color: #1e40af; margin: 30px 0 20px 0; font-family: 'Poppins', sans-serif;")}>{page3.masterPlanHeading}</h3>
               <div style={{ width: '100%', maxHeight: '380px', minHeight: '200px', height: 'auto', position: 'relative', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 15px rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   {isActualImageSrc(page3.masterPlanImage) ? (
@@ -377,8 +386,8 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
                       altText="Master Plan"
                       aiHint={page3.masterPlanImageAiHint}
                       className={getImagePrintClass(page3.masterPlanImage)}
-                      baseWidth="100%" 
-                      baseHeight="100%" 
+                      baseWidth="100%"
+                      baseHeight="100%"
                       iconSize={70}
                   />
                   )}
@@ -394,10 +403,10 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
   const renderOverflowPageContent = (overflowAmenities: AmenityItem[], showMasterPlanOnThisPage: boolean, isOverallLastPage: boolean, noFloorPlans: boolean) => (
     <>
       <div style={parseStyle("background: #1e40af; color: white; padding: 20px 40px; text-align: center; flex-shrink: 0;")}>
-          <h2 style={parseStyle("font-size: 28px; font-weight: bold; margin: 0; font-family: 'Poppins', sans-serif;")}>More Amenities {showMasterPlanOnThisPage && page3.masterPlanHeading ? "&amp; Master Plan" : ""}</h2>
+          <h2 style={parseStyle("font-size: 28px; font-weight: bold; margin: 0; font-family: 'Poppins', sans-serif;")}>More Amenities {showMasterPlanOnThisPage && page3.masterPlanHeading ? "& Master Plan" : ""}</h2>
           <p style={parseStyle("font-size: 14px; margin: 5px 0 0 0; opacity: 0.9;")}>Continued</p>
       </div>
-       <div style={parseStyle("padding: 30px 40px; box-sizing: border-box; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between;")}>
+       <div style={parseStyle("padding: 30px 40px; box-sizing: border-box; flex-grow: 1; display: flex; flex-direction: column;")}>
         <div> {/* Wrapper for amenities and master plan */}
           {Array.isArray(overflowAmenities) && overflowAmenities.length > 0 && (
               <div>
@@ -439,10 +448,10 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
           {page4.floorPlanHeading && <p style={parseStyle("font-size: 14px; margin: 5px 0 0 0; opacity: 0.9;")}>Detailed Unit Layouts</p>}
       </div>
 
-      <div style={parseStyle("padding: 25px 40px; box-sizing: border-box; flex-grow: 1; display:flex; flex-direction: column; justify-content: space-between;")}>
-        <div> {/* Wrapper for floor plans */}
+      <div style={parseStyle("padding: 25px 40px; box-sizing: border-box; flex-grow: 1; display:flex; flex-direction: column;")}>
+        <div style={{flexGrow: 1}}> {/* Wrapper for floor plans to allow contact info to be pushed down */}
           {floorPlansToShow.map((fp, index) => (
-              <div key={fp.id} style={parseStyle(`display: flex; flex-direction: column; gap: 15px; margin-bottom: ${index === floorPlansToShow.length -1 && !isLastFloorPlanPageChunk ? '25px' : '0px'}; padding-bottom: ${index === floorPlansToShow.length -1 && !isLastFloorPlanPageChunk ? '25px' : '0px'}; border-bottom: ${index === floorPlansToShow.length -1 && !isLastFloorPlanPageChunk ? '1px solid #eee' : 'none'}; flex-grow:1; justify-content: space-between; min-height: ${100 / Math.min(floorPlansToShow.length, FLOORPLANS_PER_PAGE) - (floorPlansToShow.length > 1 ? 5 : 0)}%;`)}>
+              <div key={fp.id} style={parseStyle(`display: flex; flex-direction: column; gap: 15px; margin-bottom: ${index === floorPlansToShow.length -1 && !isLastFloorPlanPageChunk ? '25px' : '25px'}; padding-bottom: ${index === floorPlansToShow.length -1 && !isLastFloorPlanPageChunk ? '25px' : '25px'}; border-bottom: ${index === floorPlansToShow.length -1 && !isLastFloorPlanPageChunk ? '1px solid #eee' : 'none'}; flex-grow:1; justify-content: space-between; min-height: ${100 / Math.min(floorPlansToShow.length, FLOORPLANS_PER_PAGE) - (floorPlansToShow.length > 1 ? 5 : 0)}%;`)}>
                   <div style={parseStyle("display: flex; gap: 25px; flex-grow: 1;")}>
                       <div style={{ flex: 1.3, minHeight: '300px', position: 'relative', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 15px rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                           {isActualImageSrc(fp.floorPlanImage) ? (
@@ -488,15 +497,15 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
 
   // --- Page generation logic ---
   const pageStructure: Array<{type: string, data?: any}> = [];
-  
+
   pageStructure.push({type: 'page1'});
   pageStructure.push({type: 'page2'});
-  
+
   const allAmenities = page3.amenities || [];
   const allFloorPlans = Array.isArray(page4.floorPlans) ? page4.floorPlans : [];
-  
+
   let masterPlanInitiallyOnPage3 = true;
-  if (!page3.masterPlanHeading && !page3.masterPlanImage) { // No master plan content at all
+  if (!page3.masterPlanHeading && !page3.masterPlanImage) {
       masterPlanInitiallyOnPage3 = false;
   }
 
@@ -514,13 +523,12 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
       } else {
           amenitiesForPage3 = allAmenities;
       }
-  } else { // Master plan is not shown initially on page 3 (either no content or already too many amenities)
+  } else {
       amenitiesForPage3 = allAmenities.slice(0, MAX_AMENITIES_ON_PAGE3_WITHOUT_MASTERPLAN);
       amenitiesForOverflow = allAmenities.slice(MAX_AMENITIES_ON_PAGE3_WITHOUT_MASTERPLAN);
-      // If master plan had content, it should go to overflow if not on page3
-      showMasterPlanOnOverflow = masterPlanInitiallyOnPage3; 
+      showMasterPlanOnOverflow = masterPlanInitiallyOnPage3;
   }
-  
+
   pageStructure.push({type: 'page3', data: {amenities: amenitiesForPage3, showMasterPlan: showMasterPlanOnPage3}});
 
   const needsOverflowPage = amenitiesForOverflow.length > 0 || showMasterPlanOnOverflow;
@@ -534,15 +542,22 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
         const isLastChunk = (i + FLOORPLANS_PER_PAGE) >= allFloorPlans.length;
         pageStructure.push({type: 'floorPlan', data: {plans: floorPlanChunk, isLastChunk: isLastChunk}});
     }
-  } else if (page4.contactInfoHeading || page4.legalInfoHeading) { 
+  } else if (page4.contactInfoHeading || page4.legalInfoHeading) {
     // If no floor plans, but contact/legal info needs to be shown on its own "final" page segment.
-    pageStructure.push({type: 'floorPlan', data: {plans: [], isLastChunk: true}});
+    // This case ensures contact/legal appears if page3 or overflow is the last content page.
+    const lastContentPageType = pageStructure[pageStructure.length-1].type;
+    if (lastContentPageType === 'page3' || lastContentPageType === 'overflowAmenity') {
+      // Already handled by logic within those render functions
+    } else {
+       pageStructure.push({type: 'floorPlan', data: {plans: [], isLastChunk: true}});
+    }
   }
-  
+
   const totalPageCount = pageStructure.length;
   const pageElements: JSX.Element[] = pageStructure.map((pageDef, index) => {
     const isOverallLastPage = index === totalPageCount - 1;
     let pageContent: React.ReactNode;
+    let currentPageStyle = viewMode === 'landscape' ? pageOnSpreadStyle : pageStylePortrait;
 
     switch(pageDef.type) {
         case 'page1':
@@ -565,8 +580,11 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
     }
 
     return (
-        <div key={`page-${index}`} className="page" style={viewMode === 'landscape' ? pageOnSpreadStyle : pageStylePortrait}>
-            {pageContent}
+        <div key={`page-${index}`} className="page" style={currentPageStyle}>
+            {/* This inner div is the flex container for the main page content (excluding the disclaimer) */}
+            <div style={{flexGrow: 1, display: 'flex', flexDirection: 'column', overflowY: 'hidden', minHeight: '0' }}>
+                {pageContent}
+            </div>
             {isOverallLastPage && <UniversalDisclaimer />}
         </div>
     );
@@ -588,12 +606,12 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
         id="brochure-container"
         style={{
           display: 'flex',
-          flexDirection: 'row', 
-          gap: '30px', 
-          padding: '20px', 
-          alignItems: 'flex-start', 
-          overflowX: 'auto', 
-          width: 'max-content', 
+          flexDirection: 'row',
+          gap: '30px',
+          padding: '20px',
+          alignItems: 'flex-start',
+          overflowX: 'auto',
+          width: 'max-content',
         }}
       >
         {landscapeSpreads}
@@ -603,15 +621,17 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
 
   return (
     <div
-      id="brochure-container" 
+      id="brochure-container"
       style={{
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center', 
-        padding: '20px 0', 
+        alignItems: 'center',
+        padding: '20px 0',
       }}
     >
       {pageElements}
     </div>
   );
 };
+
+    

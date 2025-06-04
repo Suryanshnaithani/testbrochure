@@ -39,11 +39,11 @@ interface BrochureEditorProps {
 }
 
 const SectionTitle: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className }) => (
-  <h3 className={cn("text-lg font-headline font-semibold mt-6 mb-4 text-primary border-b border-primary/20 pb-2", className)}>{children}</h3>
+  <h3 className={cn("text-lg font-headline font-semibold mt-4 mb-3 text-primary border-b border-primary/20 pb-2", className)}>{children}</h3>
 );
 
 const FieldSet: React.FC<{ label: string; htmlFor?: string; children: React.ReactNode; description?: string; className?: string }> = ({ label, htmlFor, children, description, className }) => (
-  <div className={cn("space-y-2 mb-4", className)}>
+  <div className={cn("space-y-1.5 mb-3", className)}> {/* Reduced mb from 4 to 3, space-y from 2 to 1.5 */}
     <Label htmlFor={htmlFor} className="font-semibold text-sm text-foreground/90">{label}</Label>
     {children}
     {description && <p className="text-xs text-muted-foreground pt-1">{description}</p>}
@@ -86,7 +86,7 @@ export const BrochureEditor: React.FC<BrochureEditorProps> = ({
   ) => {
     const imageSource = content[imageFieldPage] as any;
     const imageDataUri = imageSource ? imageSource[imageFieldKey] as string : null;
-    
+
     if (!imageDataUri || !imageDataUri.startsWith('data:image')) {
       toast({ title: "AI Suggestion Error", description: "Please upload an image first for AI suggestions.", variant: "destructive" });
       return;
@@ -118,7 +118,7 @@ export const BrochureEditor: React.FC<BrochureEditorProps> = ({
     onChangeHandler: (index: number, value: string) => void,
     idPrefix: string
   ) => (
-    <div className="space-y-3">
+    <div className="space-y-2.5"> {/* Adjusted spacing */}
       {Array.isArray(list) && list.map((item, index) => (
         <FieldSet key={`${idPrefix}-${index}`} label={`${labelPrefix} #${index + 1}`} htmlFor={`${idPrefix}-${index}`} className="mb-0">
           <Input
@@ -133,19 +133,19 @@ export const BrochureEditor: React.FC<BrochureEditorProps> = ({
 
 
   return (
-    <div className="p-4 space-y-6 h-full overflow-y-auto scroll-smooth">
-      <h2 className="text-xl font-headline text-primary border-b pb-2 mb-4">Edit Brochure Content</h2>
+    <div className="p-4 space-y-4 h-full overflow-y-auto scroll-smooth"> {/* Reduced space-y from 6 to 4 */}
+      <h2 className="text-xl font-headline text-primary border-b pb-2 mb-3">Edit Brochure Content</h2>
       <Accordion type="multiple" defaultValue={['page1', 'page3', 'page4']} className="w-full">
 
         <AccordionItem value="page1">
           <AccordionTrigger className="font-headline text-base hover:no-underline">Page 1: Cover & Introduction</AccordionTrigger>
-          <AccordionContent className="pt-3 space-y-4">
+          <AccordionContent className="pt-2 space-y-3"> {/* Reduced pt and space-y */}
             <ImageDropzone
               label="Builder Logo"
               currentImage={content.page1.builderLogoImage}
               onFileChange={(dataUri) => handleImageChange('page1', 'builderLogoImage', dataUri)}
               aspectRatio="logo"
-              className="mb-4"
+              className="mb-3"
             />
             <FieldSet label="Logo Text Line 1 (Fallback)" htmlFor="p1-logoTextLine1" description="Displayed if no logo image."><Input id="p1-logoTextLine1" value={content.page1.logoTextLine1} onChange={e => onContentChange('page1', 'logoTextLine1', e.target.value)} /></FieldSet>
             <FieldSet label="Logo Text Line 2 (Fallback)" htmlFor="p1-logoTextLine2" description="Displayed if no logo image."><Input id="p1-logoTextLine2" value={content.page1.logoTextLine2} onChange={e => onContentChange('page1', 'logoTextLine2', e.target.value)} /></FieldSet>
@@ -159,46 +159,46 @@ export const BrochureEditor: React.FC<BrochureEditorProps> = ({
               currentImage={content.page1.buildingImage}
               onFileChange={(dataUri) => handleImageChange('page1', 'buildingImage', dataUri)}
               aspectRatio="landscape"
-              className="mb-4"
+              className="mb-3"
             />
 
             <SectionTitle>Introduction</SectionTitle>
             <FieldSet label="Intro Heading" htmlFor="p1-introHeading"><Input id="p1-introHeading" value={content.page1.introHeading} onChange={e => onContentChange('page1', 'introHeading', e.target.value)} /></FieldSet>
             <FieldSet label="Intro Paragraph 1" htmlFor="p1-introPara1">
-              <Textarea id="p1-introPara1" value={content.page1.introPara1} onChange={e => onContentChange('page1', 'introPara1', e.target.value)} rows={5} />
-              <Button onClick={() => handleAiSuggest('page1', 'buildingImage', 'page1', 'introPara1')} variant="outline" size="sm" className="mt-2 text-xs" disabled={isLoadingAi['page1-introPara1'] || !content.page1.buildingImage}>
+              <Textarea id="p1-introPara1" value={content.page1.introPara1} onChange={e => onContentChange('page1', 'introPara1', e.target.value)} rows={4} />
+              <Button onClick={() => handleAiSuggest('page1', 'buildingImage', 'page1', 'introPara1')} variant="outline" size="sm" className="mt-1.5 text-xs" disabled={isLoadingAi['page1-introPara1'] || !content.page1.buildingImage}>
                 <Wand2 className="mr-1.5 h-3.5 w-3.5" /> {isLoadingAi['page1-introPara1'] ? 'Suggesting...' : 'Suggest Text'}
               </Button>
             </FieldSet>
             <FieldSet label="Intro Paragraph 2" htmlFor="p1-introPara2">
-              <Textarea id="p1-introPara2" value={content.page1.introPara2} onChange={e => onContentChange('page1', 'introPara2', e.target.value)} rows={5} />
-              <Button onClick={() => handleAiSuggest('page1', 'buildingImage', 'page1', 'introPara2')} variant="outline" size="sm" className="mt-2 text-xs" disabled={isLoadingAi['page1-introPara2'] || !content.page1.buildingImage}>
+              <Textarea id="p1-introPara2" value={content.page1.introPara2} onChange={e => onContentChange('page1', 'introPara2', e.target.value)} rows={4} />
+              <Button onClick={() => handleAiSuggest('page1', 'buildingImage', 'page1', 'introPara2')} variant="outline" size="sm" className="mt-1.5 text-xs" disabled={isLoadingAi['page1-introPara2'] || !content.page1.buildingImage}>
                 <Wand2 className="mr-1.5 h-3.5 w-3.5" /> {isLoadingAi['page1-introPara2'] ? 'Suggesting...' : 'Suggest Text'}
               </Button>
             </FieldSet>
 
             <SectionTitle>Developer Info</SectionTitle>
             <FieldSet label="Developer Heading" htmlFor="p1-developerHeading"><Input id="p1-developerHeading" value={content.page1.developerHeading} onChange={e => onContentChange('page1', 'developerHeading', e.target.value)} /></FieldSet>
-            <FieldSet label="Developer Paragraph" htmlFor="p1-developerPara"><Textarea id="p1-developerPara" value={content.page1.developerPara} onChange={e => onContentChange('page1', 'developerPara', e.target.value)} rows={4} /></FieldSet>
+            <FieldSet label="Developer Paragraph" htmlFor="p1-developerPara"><Textarea id="p1-developerPara" value={content.page1.developerPara} onChange={e => onContentChange('page1', 'developerPara', e.target.value)} rows={3} /></FieldSet>
           </AccordionContent>
         </AccordionItem>
 
         <AccordionItem value="page2">
           <AccordionTrigger className="font-headline text-base hover:no-underline">Page 2: Location & Connectivity</AccordionTrigger>
-          <AccordionContent className="pt-3 space-y-4">
+          <AccordionContent className="pt-2 space-y-3">
             <FieldSet label="Site Address Heading" htmlFor="p2-siteAddressHeading"><Input id="p2-siteAddressHeading" value={content.page2.siteAddressHeading} onChange={e => onContentChange('page2', 'siteAddressHeading', e.target.value)} /></FieldSet>
-            <FieldSet label="Site Address" htmlFor="p2-siteAddress"><Textarea id="p2-siteAddress" value={content.page2.siteAddress} onChange={e => onContentChange('page2', 'siteAddress', e.target.value)} rows={4} /></FieldSet>
+            <FieldSet label="Site Address" htmlFor="p2-siteAddress"><Textarea id="p2-siteAddress" value={content.page2.siteAddress} onChange={e => onContentChange('page2', 'siteAddress', e.target.value)} rows={3} /></FieldSet>
             <ImageDropzone
               label="Location Map Image"
               currentImage={content.page2.locationMapImage}
               onFileChange={(dataUri) => handleImageChange('page2', 'locationMapImage', dataUri)}
               aspectRatio="landscape"
-              className="mb-4"
+              className="mb-3"
             />
 
             <SectionTitle>Connectivity Details</SectionTitle>
             <FieldSet label="Connectivity Heading" htmlFor="p2-connectivityHeading"><Input id="p2-connectivityHeading" value={content.page2.connectivityHeading} onChange={e => onContentChange('page2', 'connectivityHeading', e.target.value)} /></FieldSet>
-            
+
             <FieldSet label="Metro & Railway Title" htmlFor="p2-connMetroTitle"><Input id="p2-connMetroTitle" value={content.page2.connectivityMetroRailwayTitle} onChange={e => onContentChange('page2', 'connectivityMetroRailwayTitle', e.target.value)} /></FieldSet>
             {renderListInput(content.page2.connectivityMetroRailwayItems, 'Metro/Railway Item', (index, value) => onListItemChange('page2', 'connectivityMetroRailwayItems' as any, index, value), 'p2-connMetroItem')}
 
@@ -215,12 +215,12 @@ export const BrochureEditor: React.FC<BrochureEditorProps> = ({
 
         <AccordionItem value="page3">
           <AccordionTrigger className="font-headline text-base hover:no-underline">Page 3: Amenities & Master Plan</AccordionTrigger>
-          <AccordionContent className="pt-3 space-y-4">
+          <AccordionContent className="pt-2 space-y-3">
             <FieldSet label="Amenities Heading" htmlFor="p3-amenitiesHeading"><Input id="p3-amenitiesHeading" value={content.page3.amenitiesHeading} onChange={e => onContentChange('page3', 'amenitiesHeading', e.target.value)} /></FieldSet>
             <SectionTitle className="mt-0">Amenities List</SectionTitle>
             {content.page3.amenities.map((amenity) => (
-              <div key={amenity.id} className="p-3.5 border rounded-lg space-y-3 bg-card shadow-sm relative">
-                <FieldSet label={`Icon (Emoji/Symbol)`} htmlFor={`p3-amenity-icon-${amenity.id}`} className="mb-2">
+              <div key={amenity.id} className="p-3 border rounded-lg space-y-2.5 bg-card shadow-sm relative"> {/* Reduced p and space-y */}
+                <FieldSet label={`Icon (Emoji/Symbol)`} htmlFor={`p3-amenity-icon-${amenity.id}`} className="mb-1.5">
                   <Input
                     id={`p3-amenity-icon-${amenity.id}`}
                     value={amenity.icon}
@@ -229,7 +229,7 @@ export const BrochureEditor: React.FC<BrochureEditorProps> = ({
                     className="w-16 text-center"
                   />
                 </FieldSet>
-                <FieldSet label="Amenity Text" htmlFor={`p3-amenity-text-${amenity.id}`} className="mb-2">
+                <FieldSet label="Amenity Text" htmlFor={`p3-amenity-text-${amenity.id}`} className="mb-1.5">
                   <Input id={`p3-amenity-text-${amenity.id}`} value={amenity.text} onChange={e => onAmenityItemChange(amenity.id, 'text', e.target.value)} />
                 </FieldSet>
                 <ImageDropzone
@@ -243,14 +243,14 @@ export const BrochureEditor: React.FC<BrochureEditorProps> = ({
                   variant="ghost"
                   size="icon"
                   onClick={() => onRemoveAmenity(amenity.id)}
-                  className="absolute top-1.5 right-1.5 h-7 w-7 text-destructive hover:bg-destructive/10 p-1"
+                  className="absolute top-1 right-1 h-7 w-7 text-destructive hover:bg-destructive/10 p-1"
                   aria-label="Remove amenity"
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
             ))}
-            <Button onClick={onAddAmenity} variant="outline" size="sm" className="mt-3">
+            <Button onClick={onAddAmenity} variant="outline" size="sm" className="mt-2.5"> {/* Reduced mt */}
               <PlusCircle className="mr-2 h-4 w-4" /> Add Amenity
             </Button>
             <SectionTitle>Master Plan</SectionTitle>
@@ -260,26 +260,26 @@ export const BrochureEditor: React.FC<BrochureEditorProps> = ({
               currentImage={content.page3.masterPlanImage}
               onFileChange={(dataUri) => handleImageChange('page3', 'masterPlanImage', dataUri)}
               aspectRatio="landscape"
-              className="mb-4"
+              className="mb-3"
             />
           </AccordionContent>
         </AccordionItem>
 
         <AccordionItem value="page4">
           <AccordionTrigger className="font-headline text-base hover:no-underline">Page 4+: Floor Plans & Contact</AccordionTrigger>
-          <AccordionContent className="pt-3 space-y-4">
+          <AccordionContent className="pt-2 space-y-3">
             <FieldSet label="Main Heading for All Floor Plans" htmlFor="p4-floorPlanHeadingGlobal">
                 <Input id="p4-floorPlanHeadingGlobal" value={content.page4.floorPlanHeading} onChange={e => onContentChange('page4', 'floorPlanHeading', e.target.value)} />
             </FieldSet>
 
             {content.page4.floorPlans.map((floorPlan, fpIndex) => (
-              <div key={floorPlan.id} className="p-4 border rounded-lg space-y-4 bg-card shadow-md relative mt-4">
-                <SectionTitle className="mt-0 mb-3 text-base">Floor Plan #{fpIndex + 1}: {floorPlan.name || "Untitled"}</SectionTitle>
+              <div key={floorPlan.id} className="p-3 border rounded-lg space-y-3 bg-card shadow-md relative mt-3"> {/* Reduced p, space-y, mt */}
+                <SectionTitle className="mt-0 mb-2.5 text-base">Floor Plan #{fpIndex + 1}: {floorPlan.name || "Untitled"}</SectionTitle>
                  <Button
                   variant="ghost"
                   size="icon"
                   onClick={() => onRemoveFloorPlan(floorPlan.id)}
-                  className="absolute top-2 right-2 h-8 w-8 text-destructive hover:bg-destructive/10 p-1.5"
+                  className="absolute top-1.5 right-1.5 h-8 w-8 text-destructive hover:bg-destructive/10 p-1.5"
                   aria-label="Remove floor plan"
                 >
                   <Trash2 className="h-4 w-4" />
@@ -292,8 +292,8 @@ export const BrochureEditor: React.FC<BrochureEditorProps> = ({
                   label="Floor Plan Image"
                   currentImage={floorPlan.floorPlanImage}
                   onFileChange={(dataUri) => handleFloorPlanImageChange(floorPlan.id, dataUri)}
-                  aspectRatio="landscape" 
-                  className="mb-4"
+                  aspectRatio="landscape"
+                  className="mb-3"
                 />
                 <FieldSet label="Specifications Heading" htmlFor={`fp-specsHeading-${floorPlan.id}`}>
                   <Input id={`fp-specsHeading-${floorPlan.id}`} value={floorPlan.specsHeading} onChange={e => onUpdateFloorPlanItem(floorPlan.id, 'specsHeading', e.target.value)} />
@@ -316,10 +316,10 @@ export const BrochureEditor: React.FC<BrochureEditorProps> = ({
                 {renderListInput(floorPlan.specsFeaturesItems, 'Feature Item', (index, value) => onUpdateFloorPlanListItem(floorPlan.id, index, value), `fp-${floorPlan.id}-specsFeatureItem`)}
               </div>
             ))}
-            <Button onClick={onAddFloorPlan} variant="outline" size="sm" className="mt-4">
+            <Button onClick={onAddFloorPlan} variant="outline" size="sm" className="mt-3">
               <CopyPlus className="mr-2 h-4 w-4" /> Add Another Floor Plan
             </Button>
-            
+
             <SectionTitle>Contact Information</SectionTitle>
             <FieldSet label="Contact Info Heading" htmlFor="p4-contactInfoHeading"><Input id="p4-contactInfoHeading" value={content.page4.contactInfoHeading} onChange={e => onContentChange('page4', 'contactInfoHeading', e.target.value)} /></FieldSet>
             <FieldSet label="Sales Office Title" htmlFor="p4-salesOfficeTitle"><Input id="p4-salesOfficeTitle" value={content.page4.contactSalesOfficeTitle} onChange={e => onContentChange('page4', 'contactSalesOfficeTitle', e.target.value)} /></FieldSet>
@@ -340,3 +340,5 @@ export const BrochureEditor: React.FC<BrochureEditorProps> = ({
     </div>
   );
 };
+
+    
