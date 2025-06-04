@@ -93,11 +93,11 @@ body {
   }
 }
 
-/* Print styles overhaul V3 */
+/* Print styles overhaul V4 - More aggressive resets and targeting */
 @media print {
   /* 1. Hide elements that should NOT be part of the print output */
   .no-print, /* Generic class for anything not to be printed */
-  header[class*="no-print"], /* The app's preview header */
+  header[class*="no-print"], /* The app's preview header (BrochurePreview's top bar) */
   div[data-sidebar="sidebar"], /* The editor sidebar component */
   div[data-radix-toast-provider], /* Radix Toasts container */
   /* Hide any other interactive UI elements not part of content */
@@ -254,8 +254,12 @@ body {
 
   /* Styles for placeholder images in print - they should be hidden */
   /* This targets the ProfessionalPlaceholder component if it has the no-print class */
-  div[class*="ProfessionalPlaceholder"].no-print { 
+  /* AND any direct img tags that are using placehold.co (as a fallback) */
+  div[class*="ProfessionalPlaceholder"].no-print,
+  img[src^="https://placehold.co"].no-print { 
       display: none !important;
       visibility: hidden !important;
   }
 }
+
+    
