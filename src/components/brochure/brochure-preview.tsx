@@ -3,24 +3,22 @@
 
 import type { BrochureContent } from '@/types/brochure';
 import { BrochureTemplateRenderer } from './brochure-template-renderer';
-import { Button } from '@/components/ui/button';
-import { Download } from 'lucide-react'; // Removed RotateCcw
+// Button and Download icon are no longer needed here
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import React, { useState } from 'react';
 
 interface BrochurePreviewProps {
   content: BrochureContent;
-  onDownloadPdf: () => void;
-  // onResetContent prop removed
+  // onDownloadPdf prop removed
 }
 
-export const BrochurePreview: React.FC<BrochurePreviewProps> = ({ content, onDownloadPdf }) => {
+export const BrochurePreview: React.FC<BrochurePreviewProps> = ({ content }) => {
   const [viewMode, setViewMode] = useState<'portrait' | 'landscape'>('portrait');
 
   return (
     <div className="flex flex-col h-full bg-muted/20">
-      <div className="p-4 border-b bg-card flex items-center justify-between no-print shadow-sm">
+      <div className="h-[60px] px-4 border-b bg-card flex items-center justify-between no-print shadow-sm">
         <h2 className="text-xl font-headline text-primary">Brochure Preview</h2>
         <div className="flex items-center gap-4">
            <div className="flex items-center space-x-2">
@@ -34,10 +32,7 @@ export const BrochurePreview: React.FC<BrochurePreviewProps> = ({ content, onDow
               {viewMode === 'portrait' ? 'Portrait View' : 'Landscape View'}
             </Label>
           </div>
-          {/* Reset All Content Button Removed */}
-          <Button onClick={onDownloadPdf} size="sm">
-            <Download className="mr-2 h-4 w-4" /> Download PDF
-          </Button>
+          {/* Download PDF Button Removed from here */}
         </div>
       </div>
       <div
