@@ -84,7 +84,7 @@ const ProfessionalPlaceholder: React.FC<{
 
 const MAX_AMENITIES_ON_PAGE3_WITH_MASTERPLAN = 4;
 const MAX_AMENITIES_ON_PAGE3_WITHOUT_MASTERPLAN = 8;
-const FLOORPLANS_PER_PAGE = 3;
+const FLOORPLANS_PER_PAGE = 2; // Changed from 3 to 2
 
 const UniversalDisclaimer: React.FC = () => (
   <div style={{
@@ -376,7 +376,7 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
           )}
 
           {showMasterPlanOnThisPage && page3.masterPlanHeading && (
-              <div style={{ flexShrink: 0 }}>
+              <div style={{ }}> {/* Removed flexShrink:0 and marginTop:auto */}
               <h3 style={parseStyle("font-size: 20px; font-weight: bold; color: #1e40af; margin: 30px 0 20px 0; font-family: 'Poppins', sans-serif;")}>{page3.masterPlanHeading}</h3>
               <div style={{ width: '100%', maxHeight: '380px', minHeight: '200px', height: 'auto', position: 'relative', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 15px rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   {isActualImageSrc(page3.masterPlanImage) ? (
@@ -417,7 +417,7 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
               </div>
           )}
           {showMasterPlanOnThisPage && page3.masterPlanHeading && (
-              <div style={{ flexShrink: 0 }}>
+              <div style={{ }}> {/* Removed flexShrink:0 and marginTop:auto */}
                   <h3 style={parseStyle("font-size: 20px; font-weight: bold; color: #1e40af; margin: 30px 0 20px 0; font-family: 'Poppins', sans-serif;")}>{page3.masterPlanHeading}</h3>
                   <div style={{ width: '100%', maxHeight: '380px', minHeight: '200px', height: 'auto', position: 'relative', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 15px rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   {isActualImageSrc(page3.masterPlanImage) ? (
@@ -515,18 +515,26 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
   let showMasterPlanOnOverflow = false;
 
   if (masterPlanInitiallyOnPage3) {
+      // If master plan *would* be on page 3, check if amenities exceed its limit
       if (allAmenities.length > MAX_AMENITIES_ON_PAGE3_WITH_MASTERPLAN) {
+          // Amenities are too many for master plan on page 3.
+          // Move master plan to overflow. Fill page 3 with amenities up to its own limit.
           amenitiesForPage3 = allAmenities.slice(0, MAX_AMENITIES_ON_PAGE3_WITHOUT_MASTERPLAN);
           amenitiesForOverflow = allAmenities.slice(MAX_AMENITIES_ON_PAGE3_WITHOUT_MASTERPLAN);
-          showMasterPlanOnPage3 = false;
-          showMasterPlanOnOverflow = true;
+          showMasterPlanOnPage3 = false; // Master plan not on page 3
+          showMasterPlanOnOverflow = true; // Master plan moved to overflow page
       } else {
+          // Amenities fit with master plan on page 3
           amenitiesForPage3 = allAmenities;
+          // showMasterPlanOnPage3 remains true (its initial value)
       }
   } else {
+      // Master plan was never going to be on page 3 (no heading/image)
+      // Fill page 3 with amenities up to its limit.
       amenitiesForPage3 = allAmenities.slice(0, MAX_AMENITIES_ON_PAGE3_WITHOUT_MASTERPLAN);
       amenitiesForOverflow = allAmenities.slice(MAX_AMENITIES_ON_PAGE3_WITHOUT_MASTERPLAN);
-      showMasterPlanOnOverflow = masterPlanInitiallyOnPage3;
+      // showMasterPlanOnPage3 remains false (its initial value)
+      // showMasterPlanOnOverflow remains false (it wasn't there to begin with)
   }
 
   pageStructure.push({type: 'page3', data: {amenities: amenitiesForPage3, showMasterPlan: showMasterPlanOnPage3}});
@@ -543,13 +551,15 @@ export const BrochureTemplateRenderer: React.FC<BrochureTemplateRendererProps> =
         pageStructure.push({type: 'floorPlan', data: {plans: floorPlanChunk, isLastChunk: isLastChunk}});
     }
   } else if (page4.contactInfoHeading || page4.legalInfoHeading) {
-    // If no floor plans, but contact/legal info needs to be shown on its own "final" page segment.
-    // This case ensures contact/legal appears if page3 or overflow is the last content page.
-    const lastContentPageType = pageStructure[pageStructure.length-1].type;
-    if (lastContentPageType === 'page3' || lastContentPageType === 'overflowAmenity') {
-      // Already handled by logic within those render functions
-    } else {
-       pageStructure.push({type: 'floorPlan', data: {plans: [], isLastChunk: true}});
+    // This condition ensures Contact/Legal info is shown if it's the *absolute* last content,
+    // even if no floor plans exist. Its rendering is handled within page3/overflow/floorPlan render functions.
+    const lastContentPageIsAmenityType = pageStructure[pageStructure.length-1].type === 'page3' || pageStructure[pageStructure.length-1].type === 'overflowAmenity';
+    if (lastContentPageIsAmenityType && allFloorPlans.length === 0) {
+        // Contact/Legal will be handled by page3 or overflowAmenity renderers if they are the last.
+    } else if (!lastContentPageIsAmenityType && allFloorPlans.length === 0) {
+        // If there's no page3/overflow and no floor plans, but we *do* have contact info,
+        // we need a page for it.
+         pageStructure.push({type: 'floorPlan', data: {plans: [], isLastChunk: true}});
     }
   }
 
