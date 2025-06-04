@@ -93,15 +93,13 @@ body {
   }
 }
 
-/* Print styles overhaul - Aggressive Reset & A4 Definition */
+/* Print styles overhaul */
 @media print {
-  /* Hide everything by default */
-  body > *:not(#scaled-brochure-wrapper),
-  body > *:not(#scaled-brochure-wrapper) *,
-  header, nav, aside, footer,
-  div[data-sidebar="sidebar"],
-  div[role="dialog"],
-  div[data-radix-toast-provider] {
+  /* 1. Hide elements that should NOT be part of the print output */
+  .no-print,
+  div[data-sidebar="sidebar"], /* The editor sidebar component itself */
+  body > div[data-radix-toast-provider] /* Toasts */
+  {
     display: none !important;
     visibility: hidden !important;
     width: 0 !important;
@@ -113,35 +111,45 @@ body {
     box-shadow: none !important;
   }
 
-  /* Define A4 canvas for html and body */
-  html, body {
-    display: block !important; /* Override any flex/grid from screen styles */
+  /* 2. Ensure the direct path to the brochure content IS visible and reset for print */
+  /*    These are containers *around* the brochure content. */
+  html, body, div#__next, div#__next > div, main[class*="SidebarInset"], div#brochure-preview-area {
+    display: block !important;
     visibility: visible !important;
     background: white !important;
-    color: black !important;
-    width: 210mm !important;
-    height: auto !important; /* Let content flow for multiple pages */
-    overflow: visible !important;
-    margin: 0 auto !important; /* Center A4 content on physical paper if paper is larger */
+    color: black !important; /* Default text color for print */
+    margin: 0 !important;
     padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    width: auto !important; /* Allow them to naturally fit or be controlled by A4 body */
+    height: auto !important;
+    min-height: 0 !important; /* Reset min-heights that might interfere */
+    overflow: visible !important; /* CRITICAL for print to show all content */
     -webkit-print-color-adjust: exact !important;
     color-adjust: exact !important;
   }
 
-  /* Normalize the main brochure wrapper for print */
+  /* 3. Style the 'body' to represent the A4 paper canvas */
+  body {
+    width: 210mm !important;
+    /* height: auto !important; /* Let body height be auto for multi-page */
+    margin: 0 auto !important; /* Center A4 on physical paper if paper is larger */
+  }
+
+  /* 4. Style the #scaled-brochure-wrapper to take up the A4 dimensions and remove screen scaling */
   #scaled-brochure-wrapper {
     display: block !important;
     visibility: visible !important;
     transform: none !important; /* CRITICAL: Remove any screen scaling */
     transform-origin: initial !important;
-    position: static !important; /* Simplify positioning context */
+    position: relative !important; 
     width: 100% !important; /* Full 210mm from body */
-    height: auto !important; /* Let page content define height */
+    height: auto !important; /* Let content flow for multiple pages */
     margin: 0 !important;
     padding: 0 !important;
     overflow: visible !important;
     background: white !important;
-    color: black !important;
     box-shadow: none !important;
     border: none !important;
     -webkit-print-color-adjust: exact !important;
@@ -149,8 +157,9 @@ body {
     box-sizing: border-box !important;
   }
 
+  /* 5. Style #brochure-container (inside #scaled-brochure-wrapper) */
   #brochure-container {
-    display: block !important;
+    display: block !important; 
     visibility: visible !important;
     width: 100% !important;
     height: auto !important;
@@ -165,19 +174,11 @@ body {
     box-sizing: border-box !important;
   }
 
-  /* Ensure all children within the brochure content are visible and styled for print */
-  #scaled-brochure-wrapper *, #brochure-container * {
-     visibility: visible !important;
-    -webkit-print-color-adjust: exact !important;
-    color-adjust: exact !important;
-    color: black !important; /* Force black text for better print readability */
-  }
-
-   /* Page spreads become simple block containers in print */
+  /* 6. Styles for .page-spread and .page */
   .page-spread {
-    display: block !important;
-    width: 100% !important; /* Full 210mm */
-    height: auto !important; /* Height determined by pages within */
+    display: block !important; 
+    width: 100% !important; 
+    height: auto !important;
     margin: 0 !important;
     padding: 0 !important;
     box-shadow: none !important;
@@ -186,54 +187,45 @@ body {
     -webkit-print-color-adjust: exact !important;
     color-adjust: exact !important;
     box-sizing: border-box !important;
-    page-break-inside: avoid !important;
+    page-break-inside: avoid !important; 
+    page-break-after: always !important; 
+  }
+  .page-spread:last-of-type {
+    page-break-after: avoid !important;
   }
 
-  /* Define strict A4 page dimensions and behavior */
   .page {
-    display: flex !important; /* Use flex for print to manage footer */
-    flex-direction: column !important; /* Stack content vertically */
-    width: 100% !important; /* 100% of 210mm */
-    height: 297mm !important; /* Exact A4 height */
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important; 
+    height: 297mm !important; 
     min-height: 297mm !important;
+    max-height: 297mm !important; 
     margin: 0 !important;
-    padding: 0 !important; /* Page itself has no padding, content inside does */
+    padding: 0 !important; 
     box-shadow: none !important;
     border: none !important;
-    overflow: hidden !important; /* CRITICAL: Clip content to A4 page boundaries */
-    position: relative !important; /* Anchor for absolutely positioned children if any (should be avoided for flow) */
+    overflow: hidden !important; 
+    position: relative !important;
     visibility: visible !important;
     background: white !important;
     -webkit-print-color-adjust: exact !important;
     color-adjust: exact !important;
     box-sizing: border-box !important;
-    page-break-after: always !important; /* Force page break after each .page */
+    page-break-after: always !important; 
+    page-break-inside: avoid !important; 
   }
 
-  /* Style the inner content wrapper within .page for print */
   .page > div:first-child { /* Target the main content wrapper generated by the renderer */
     flex-grow: 1 !important;
     display: flex !important;
     flex-direction: column !important;
-    overflow: hidden !important; /* Prevent content itself from causing page overflow */
+    overflow: hidden !important; 
   }
 
-
-  /* Prevent page break after the very last page */
   #brochure-container > .page:last-of-type,
   #brochure-container > .page-spread:last-of-type > .page:last-of-type {
     page-break-after: avoid !important;
-  }
-
-  /* General no-print class (for placeholders, etc.) */
-  .no-print, .no-print * {
-    display: none !important;
-    visibility: hidden !important;
-    width: 0 !important;
-    height: 0 !important;
-    overflow: hidden !important;
-    margin: 0 !important;
-    padding: 0 !important;
   }
 
   /* Ensure images print correctly */
@@ -245,10 +237,8 @@ body {
     color-adjust: exact !important;
   }
 
-  /* Remove any transforms on images that might affect print */
   img[style*="transform"] {
       transform: none !important;
   }
 }
-
     
