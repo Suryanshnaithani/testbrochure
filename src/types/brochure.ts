@@ -7,7 +7,19 @@ export interface AmenityItem {
   imageAiHint?: string; // AI hint for amenity image
 }
 
-// FloorPlanItem is removed as we revert to a single floor plan structure on page4
+export interface FloorPlanItem {
+  id: string;
+  name: string;
+  floorPlanImage?: string; // data URI or URL
+  floorPlanImageAiHint?: string;
+  specsHeading: string;
+  specsCarpetArea: string;
+  specsBuiltUpArea: string;
+  specsBalconyArea: string;
+  specsConfiguration: string;
+  specsFeaturesTitle: string;
+  specsFeaturesItems: string[];
+}
 
 export interface BrochureContent {
   meta: {
@@ -51,20 +63,10 @@ export interface BrochureContent {
     masterPlanImage?: string; // data URI or URL
     masterPlanImageAiHint?: string;
   };
-  page4: {
-    floorPlanHeading: string;
-    // Single floor plan details directly on page4
-    floorPlanName: string; // Added for clarity, previously might have been implicit
-    floorPlanImage?: string; // data URI or URL
-    floorPlanImageAiHint?: string;
-    specsHeading: string;
-    specsCarpetArea: string;
-    specsBuiltUpArea: string;
-    specsBalconyArea: string;
-    specsConfiguration: string;
-    specsFeaturesTitle: string;
-    specsFeaturesItems: string[];
-    // Contact and Legal info remain
+  page4: { // This 'page4' key remains for organizational consistency, but now holds an array
+    floorPlanHeading: string; // General heading for all floor plans section
+    floorPlans: FloorPlanItem[];
+    // Contact and Legal info remain part of the last standard page structure
     contactInfoHeading: string;
     contactSalesOfficeTitle: string;
     contactSalesOfficePhone: string;

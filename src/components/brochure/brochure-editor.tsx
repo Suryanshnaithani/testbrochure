@@ -1,13 +1,13 @@
 
 "use client";
 
-import type { BrochureContent, AmenityItem } from '@/types/brochure';
+import type { BrochureContent, AmenityItem, FloorPlanItem } from '@/types/brochure';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Wand2, PlusCircle, Trash2 } from 'lucide-react';
+import { Wand2, PlusCircle, Trash2, CopyPlus } from 'lucide-react';
 import React, { useCallback, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { suggestBrochureText, type SuggestBrochureTextInput } from '@/ai/flows/suggest-brochure-text';
@@ -30,7 +30,11 @@ interface BrochureEditorProps {
     index: number,
     value: string
   ) => void;
-  onUpdatePage4SpecsFeaturesItem: (index: number, value: string) => void; 
+  // Floor Plan specific handlers
+  onAddFloorPlan: () => void;
+  onRemoveFloorPlan: (floorPlanId: string) => void;
+  onUpdateFloorPlanItem: (floorPlanId: string, field: keyof Omit<FloorPlanItem, 'id' | 'specsFeaturesItems'>, value: string | null) => void;
+  onUpdateFloorPlanListItem: (floorPlanId: string, itemIndex: number, value: string) => void;
   onSetContent: (newContent: BrochureContent) => void;
 }
 
@@ -53,7 +57,10 @@ export const BrochureEditor: React.FC<BrochureEditorProps> = ({
   onAddAmenity,
   onRemoveAmenity,
   onListItemChange,
-  onUpdatePage4SpecsFeaturesItem,
+  onAddFloorPlan,
+  onRemoveFloorPlan,
+  onUpdateFloorPlanItem,
+  onUpdateFloorPlanListItem,
 }) => {
   const { toast } = useToast();
   const [isLoadingAi, setIsLoadingAi] = useState<Record<string, boolean>>({});
@@ -66,9 +73,9 @@ export const BrochureEditor: React.FC<BrochureEditorProps> = ({
     onAmenityItemChange(amenityId, 'imageUrl', dataUri);
   }, [onAmenityItemChange]);
 
-  const handleFloorPlanImageChange = useCallback((dataUri: string | null) => {
-    onContentChange('page4', 'floorPlanImage', dataUri);
-  }, [onContentChange]);
+  const handleFloorPlanImageChange = useCallback((floorPlanId: string, dataUri: string | null) => {
+    onUpdateFloorPlanItem(floorPlanId, 'floorPlanImage', dataUri);
+  }, [onUpdateFloorPlanItem]);
 
 
   const handleAiSuggest = async (
@@ -105,7 +112,7 @@ export const BrochureEditor: React.FC<BrochureEditorProps> = ({
     }
   };
 
-  const renderListEditor = (
+  const renderListInput = (
     list: string[] | undefined,
     labelPrefix: string,
     onChangeHandler: (index: number, value: string) => void,
@@ -113,7 +120,7 @@ export const BrochureEditor: React.FC<BrochureEditorProps> = ({
   ) => (
     <div className="space-y-3">
       {Array.isArray(list) && list.map((item, index) => (
-        <FieldSet key={index} label={`${labelPrefix} #${index + 1}`} htmlFor={`${idPrefix}-${index}`} className="mb-0">
+        <FieldSet key={`${idPrefix}-${index}`} label={`${labelPrefix} #${index + 1}`} htmlFor={`${idPrefix}-${index}`} className="mb-0">
           <Input
             id={`${idPrefix}-${index}`}
             value={item}
@@ -193,16 +200,16 @@ export const BrochureEditor: React.FC<BrochureEditorProps> = ({
             <FieldSet label="Connectivity Heading" htmlFor="p2-connectivityHeading"><Input id="p2-connectivityHeading" value={content.page2.connectivityHeading} onChange={e => onContentChange('page2', 'connectivityHeading', e.target.value)} /></FieldSet>
             
             <FieldSet label="Metro & Railway Title" htmlFor="p2-connMetroTitle"><Input id="p2-connMetroTitle" value={content.page2.connectivityMetroRailwayTitle} onChange={e => onContentChange('page2', 'connectivityMetroRailwayTitle', e.target.value)} /></FieldSet>
-            {renderListEditor(content.page2.connectivityMetroRailwayItems, 'Metro/Railway Item', (index, value) => onListItemChange('page2', 'connectivityMetroRailwayItems' as any, index, value), 'p2-connMetroItem')}
+            {renderListInput(content.page2.connectivityMetroRailwayItems, 'Metro/Railway Item', (index, value) => onListItemChange('page2', 'connectivityMetroRailwayItems' as any, index, value), 'p2-connMetroItem')}
 
             <FieldSet label="Major Roads Title" htmlFor="p2-connRoadsTitle"><Input id="p2-connRoadsTitle" value={content.page2.connectivityMajorRoadsTitle} onChange={e => onContentChange('page2', 'connectivityMajorRoadsTitle', e.target.value)} /></FieldSet>
-            {renderListEditor(content.page2.connectivityMajorRoadsItems, 'Major Road Item', (index, value) => onListItemChange('page2', 'connectivityMajorRoadsItems' as any, index, value), 'p2-connRoadsItem')}
+            {renderListInput(content.page2.connectivityMajorRoadsItems, 'Major Road Item', (index, value) => onListItemChange('page2', 'connectivityMajorRoadsItems' as any, index, value), 'p2-connRoadsItem')}
 
             <FieldSet label="Healthcare Title" htmlFor="p2-connHealthTitle"><Input id="p2-connHealthTitle" value={content.page2.connectivityHealthcareTitle} onChange={e => onContentChange('page2', 'connectivityHealthcareTitle', e.target.value)} /></FieldSet>
-            {renderListEditor(content.page2.connectivityHealthcareItems, 'Healthcare Item', (index, value) => onListItemChange('page2', 'connectivityHealthcareItems' as any, index, value), 'p2-connHealthItem')}
+            {renderListInput(content.page2.connectivityHealthcareItems, 'Healthcare Item', (index, value) => onListItemChange('page2', 'connectivityHealthcareItems' as any, index, value), 'p2-connHealthItem')}
 
             <FieldSet label="Education Title" htmlFor="p2-connEduTitle"><Input id="p2-connEduTitle" value={content.page2.connectivityEducationTitle} onChange={e => onContentChange('page2', 'connectivityEducationTitle', e.target.value)} /></FieldSet>
-            {renderListEditor(content.page2.connectivityEducationItems, 'Education Item', (index, value) => onListItemChange('page2', 'connectivityEducationItems' as any, index, value), 'p2-connEduItem')}
+            {renderListInput(content.page2.connectivityEducationItems, 'Education Item', (index, value) => onListItemChange('page2', 'connectivityEducationItems' as any, index, value), 'p2-connEduItem')}
           </AccordionContent>
         </AccordionItem>
 
@@ -259,41 +266,59 @@ export const BrochureEditor: React.FC<BrochureEditorProps> = ({
         </AccordionItem>
 
         <AccordionItem value="page4">
-          <AccordionTrigger className="font-headline text-base hover:no-underline">Page 4: Floor Plan & Contact</AccordionTrigger>
+          <AccordionTrigger className="font-headline text-base hover:no-underline">Page 4+: Floor Plans & Contact</AccordionTrigger>
           <AccordionContent className="pt-3 space-y-4">
-            <SectionTitle className="mt-0">Floor Plan Details</SectionTitle>
-            <FieldSet label="Floor Plan Main Heading" htmlFor="p4-floorPlanHeading">
-              <Input id="p4-floorPlanHeading" value={content.page4.floorPlanHeading} onChange={e => onContentChange('page4', 'floorPlanHeading', e.target.value)} />
+            <FieldSet label="Main Heading for All Floor Plans" htmlFor="p4-floorPlanHeadingGlobal">
+                <Input id="p4-floorPlanHeadingGlobal" value={content.page4.floorPlanHeading} onChange={e => onContentChange('page4', 'floorPlanHeading', e.target.value)} />
             </FieldSet>
-            <FieldSet label="Floor Plan Name" htmlFor="p4-floorPlanName">
-              <Input id="p4-floorPlanName" value={content.page4.floorPlanName} onChange={e => onContentChange('page4', 'floorPlanName', e.target.value)} />
-            </FieldSet>
-            <ImageDropzone
-              label="Floor Plan Image"
-              currentImage={content.page4.floorPlanImage}
-              onFileChange={(dataUri) => handleFloorPlanImageChange(dataUri)}
-              aspectRatio="square"
-              className="mb-4"
-            />
-            <FieldSet label="Specifications Heading" htmlFor="p4-specsHeading">
-              <Input id="p4-specsHeading" value={content.page4.specsHeading} onChange={e => onContentChange('page4', 'specsHeading', e.target.value)} />
-            </FieldSet>
-            <FieldSet label="Carpet Area" htmlFor="p4-specsCarpetArea">
-              <Input id="p4-specsCarpetArea" value={content.page4.specsCarpetArea} onChange={e => onContentChange('page4', 'specsCarpetArea', e.target.value)} />
-            </FieldSet>
-            <FieldSet label="Built-up Area" htmlFor="p4-specsBuiltUpArea">
-              <Input id="p4-specsBuiltUpArea" value={content.page4.specsBuiltUpArea} onChange={e => onContentChange('page4', 'specsBuiltUpArea', e.target.value)} />
-            </FieldSet>
-            <FieldSet label="Balcony Area" htmlFor="p4-specsBalconyArea">
-              <Input id="p4-specsBalconyArea" value={content.page4.specsBalconyArea} onChange={e => onContentChange('page4', 'specsBalconyArea', e.target.value)} />
-            </FieldSet>
-            <FieldSet label="Configuration" htmlFor="p4-specsConfiguration">
-              <Input id="p4-specsConfiguration" value={content.page4.specsConfiguration} onChange={e => onContentChange('page4', 'specsConfiguration', e.target.value)} />
-            </FieldSet>
-            <FieldSet label="Features Title" htmlFor="p4-specsFeaturesTitle">
-              <Input id="p4-specsFeaturesTitle" value={content.page4.specsFeaturesTitle} onChange={e => onContentChange('page4', 'specsFeaturesTitle', e.target.value)} />
-            </FieldSet>
-            {renderListEditor(content.page4.specsFeaturesItems, 'Feature Item', (index, value) => onUpdatePage4SpecsFeaturesItem(index, value), 'p4-specsFeatureItem')}
+
+            {content.page4.floorPlans.map((floorPlan, fpIndex) => (
+              <div key={floorPlan.id} className="p-4 border rounded-lg space-y-4 bg-card shadow-md relative mt-4">
+                <SectionTitle className="mt-0 mb-3 text-base">Floor Plan #{fpIndex + 1}: {floorPlan.name || "Untitled"}</SectionTitle>
+                 <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => onRemoveFloorPlan(floorPlan.id)}
+                  className="absolute top-2 right-2 h-8 w-8 text-destructive hover:bg-destructive/10 p-1.5"
+                  aria-label="Remove floor plan"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+
+                <FieldSet label="Floor Plan Name" htmlFor={`fp-name-${floorPlan.id}`}>
+                  <Input id={`fp-name-${floorPlan.id}`} value={floorPlan.name} onChange={e => onUpdateFloorPlanItem(floorPlan.id, 'name', e.target.value)} />
+                </FieldSet>
+                <ImageDropzone
+                  label="Floor Plan Image"
+                  currentImage={floorPlan.floorPlanImage}
+                  onFileChange={(dataUri) => handleFloorPlanImageChange(floorPlan.id, dataUri)}
+                  aspectRatio="landscape" 
+                  className="mb-4"
+                />
+                <FieldSet label="Specifications Heading" htmlFor={`fp-specsHeading-${floorPlan.id}`}>
+                  <Input id={`fp-specsHeading-${floorPlan.id}`} value={floorPlan.specsHeading} onChange={e => onUpdateFloorPlanItem(floorPlan.id, 'specsHeading', e.target.value)} />
+                </FieldSet>
+                <FieldSet label="Carpet Area" htmlFor={`fp-specsCarpetArea-${floorPlan.id}`}>
+                  <Input id={`fp-specsCarpetArea-${floorPlan.id}`} value={floorPlan.specsCarpetArea} onChange={e => onUpdateFloorPlanItem(floorPlan.id, 'specsCarpetArea', e.target.value)} />
+                </FieldSet>
+                <FieldSet label="Built-up Area" htmlFor={`fp-specsBuiltUpArea-${floorPlan.id}`}>
+                  <Input id={`fp-specsBuiltUpArea-${floorPlan.id}`} value={floorPlan.specsBuiltUpArea} onChange={e => onUpdateFloorPlanItem(floorPlan.id, 'specsBuiltUpArea', e.target.value)} />
+                </FieldSet>
+                <FieldSet label="Balcony Area" htmlFor={`fp-specsBalconyArea-${floorPlan.id}`}>
+                  <Input id={`fp-specsBalconyArea-${floorPlan.id}`} value={floorPlan.specsBalconyArea} onChange={e => onUpdateFloorPlanItem(floorPlan.id, 'specsBalconyArea', e.target.value)} />
+                </FieldSet>
+                <FieldSet label="Configuration" htmlFor={`fp-specsConfiguration-${floorPlan.id}`}>
+                  <Input id={`fp-specsConfiguration-${floorPlan.id}`} value={floorPlan.specsConfiguration} onChange={e => onUpdateFloorPlanItem(floorPlan.id, 'specsConfiguration', e.target.value)} />
+                </FieldSet>
+                <FieldSet label="Features Title" htmlFor={`fp-specsFeaturesTitle-${floorPlan.id}`}>
+                  <Input id={`fp-specsFeaturesTitle-${floorPlan.id}`} value={floorPlan.specsFeaturesTitle} onChange={e => onUpdateFloorPlanItem(floorPlan.id, 'specsFeaturesTitle', e.target.value)} />
+                </FieldSet>
+                {renderListInput(floorPlan.specsFeaturesItems, 'Feature Item', (index, value) => onUpdateFloorPlanListItem(floorPlan.id, index, value), `fp-${floorPlan.id}-specsFeatureItem`)}
+              </div>
+            ))}
+            <Button onClick={onAddFloorPlan} variant="outline" size="sm" className="mt-4">
+              <CopyPlus className="mr-2 h-4 w-4" /> Add Another Floor Plan
+            </Button>
             
             <SectionTitle>Contact Information</SectionTitle>
             <FieldSet label="Contact Info Heading" htmlFor="p4-contactInfoHeading"><Input id="p4-contactInfoHeading" value={content.page4.contactInfoHeading} onChange={e => onContentChange('page4', 'contactInfoHeading', e.target.value)} /></FieldSet>

@@ -1,12 +1,12 @@
 
 "use client";
 
-import type { AmenityItem, BrochureContent } from '@/types/brochure';
+import type { AmenityItem, BrochureContent, FloorPlanItem } from '@/types/brochure';
 import { defaultBrochureContent } from '@/config/brochure-defaults';
 import { useState, useEffect, useCallback } from 'react';
 import { nanoid } from 'nanoid';
 
-const LOCAL_STORAGE_KEY = 'brochureBuilderContent';
+const LOCAL_STORAGE_KEY = 'brochureBuilderContent_v2'; // Changed key for new structure
 
 export function useBrochureContent() {
   const [content, setContentState] = useState<BrochureContent>(defaultBrochureContent);
@@ -18,17 +18,23 @@ export function useBrochureContent() {
       const storedContent = localStorage.getItem(LOCAL_STORAGE_KEY);
       if (storedContent) {
         const parsedContent = JSON.parse(storedContent);
-        // Basic validation: check if it has a 'meta' property (can be expanded)
-        if (parsedContent && typeof parsedContent === 'object' && 'meta' in parsedContent) {
+        // Basic validation: check if it has a 'meta' and 'page4.floorPlans' (array)
+        if (
+            parsedContent && 
+            typeof parsedContent === 'object' && 
+            'meta' in parsedContent &&
+            parsedContent.page4 &&
+            Array.isArray(parsedContent.page4.floorPlans) // Key check for new structure
+        ) {
           loadedContent = parsedContent as BrochureContent;
         } else {
-          console.warn("Stored content is malformed, using defaults.");
-          localStorage.removeItem(LOCAL_STORAGE_KEY); // Remove malformed item
+          console.warn("Stored content is malformed or outdated, using defaults.");
+          localStorage.removeItem(LOCAL_STORAGE_KEY); 
         }
       }
     } catch (error) {
       console.error("Failed to load or parse content from localStorage, using defaults:", error);
-      localStorage.removeItem(LOCAL_STORAGE_KEY); // Remove potentially corrupted item
+      localStorage.removeItem(LOCAL_STORAGE_KEY); 
     }
     setContentState(loadedContent);
     setIsLoaded(true);
@@ -49,7 +55,7 @@ export function useBrochureContent() {
   const updateContent = useCallback(<K1 extends keyof BrochureContent, K2 extends keyof BrochureContent[K1]>(
     pageKey: K1,
     fieldKey: K2,
-    value: BrochureContent[K1][K2] | null // Allow null for clearing images
+    value: BrochureContent[K1][K2] | null 
   ) => {
     setContent(prevContent => ({
       ...prevContent,
@@ -79,7 +85,7 @@ export function useBrochureContent() {
         ...prevContent.page3,
         amenities: [
           ...prevContent.page3.amenities,
-          { id: nanoid(), icon: '✨', text: 'New Amenity', imageUrl: null, imageAiHint: 'new amenity' }
+          { id: nanoid(), icon: '🌟', text: 'New Amazing Amenity', imageUrl: 'https://placehold.co/180x180.png', imageAiHint: 'new amenity' }
         ],
       },
     }));
@@ -120,27 +126,72 @@ export function useBrochureContent() {
     });
   }, [setContent]);
 
-  // Function to update list items specifically for page4.specsFeaturesItems
-  const updatePage4SpecsFeaturesItem = useCallback((index: number, value: string) => {
-    setContent(prevContent => {
-      const list = prevContent.page4.specsFeaturesItems;
-      if (!Array.isArray(list)) return prevContent;
-
-      const newList = [...list];
-      newList[index] = value;
-      return {
-        ...prevContent,
-        page4: {
-          ...prevContent.page4,
-          specsFeaturesItems: newList,
-        },
-      };
-    });
+  const addFloorPlan = useCallback(() => {
+    setContent(prevContent => ({
+      ...prevContent,
+      page4: {
+        ...prevContent.page4,
+        floorPlans: [
+          ...prevContent.page4.floorPlans,
+          {
+            id: nanoid(),
+            name: 'New Floor Plan Type',
+            floorPlanImage: 'https://placehold.co/500x350.png',
+            floorPlanImageAiHint: 'blank floor plan',
+            specsHeading: 'Specifications',
+            specsCarpetArea: '0 sq. ft.',
+            specsBuiltUpArea: '0 sq. ft.',
+            specsBalconyArea: '0 sq. ft.',
+            specsConfiguration: 'TBD',
+            specsFeaturesTitle: 'Features:',
+            specsFeaturesItems: ['Feature 1', 'Feature 2'],
+          }
+        ],
+      },
+    }));
   }, [setContent]);
 
+  const removeFloorPlan = useCallback((floorPlanId: string) => {
+    setContent(prevContent => ({
+      ...prevContent,
+      page4: {
+        ...prevContent.page4,
+        floorPlans: prevContent.page4.floorPlans.filter(fp => fp.id !== floorPlanId),
+      },
+    }));
+  }, [setContent]);
 
+  const updateFloorPlanItem = useCallback((floorPlanId: string, field: keyof Omit<FloorPlanItem, 'id' | 'specsFeaturesItems'>, value: string | null) => {
+    setContent(prevContent => ({
+      ...prevContent,
+      page4: {
+        ...prevContent.page4,
+        floorPlans: prevContent.page4.floorPlans.map(fp =>
+          fp.id === floorPlanId ? { ...fp, [field]: value } : fp
+        ),
+      },
+    }));
+  }, [setContent]);
+
+  const updateFloorPlanListItem = useCallback((floorPlanId: string, itemIndex: number, value: string) => {
+    setContent(prevContent => ({
+      ...prevContent,
+      page4: {
+        ...prevContent.page4,
+        floorPlans: prevContent.page4.floorPlans.map(fp => {
+          if (fp.id === floorPlanId) {
+            const newList = [...fp.specsFeaturesItems];
+            newList[itemIndex] = value;
+            return { ...fp, specsFeaturesItems: newList };
+          }
+          return fp;
+        }),
+      },
+    }));
+  }, [setContent]);
+  
   const resetContent = useCallback(() => {
-    setContent(defaultBrochureContent); // Directly use setContent which handles localStorage
+    setContent(defaultBrochureContent); 
   }, [setContent]);
 
   return { 
@@ -150,9 +201,13 @@ export function useBrochureContent() {
     addAmenity,
     removeAmenity,
     updateListItem,
-    updatePage4SpecsFeaturesItem, // Renamed for clarity
+    // Floor plan specific functions
+    addFloorPlan,
+    removeFloorPlan,
+    updateFloorPlanItem,
+    updateFloorPlanListItem,
     resetContent, 
     isLoaded, 
-    setContent // Expose setContent for direct manipulation if needed
+    setContent 
   };
 }
